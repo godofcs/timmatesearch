@@ -89,9 +89,15 @@ def reqister():
     return render_template('register.html', colors=colors, title='Registration', form=form)
 
 
-@app.route("/searchmates/<str:game>/<str:type>")
-def searchmates(game, type):
-    pass
+# @app.route("/searchmates/<string:game>/<string:type>")
+# def searchmates(game, types):
+#     pass
+
+
+@app.route("/searchmates/<string:game>")
+def searchmates(game):
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template('search.html', colors=colors, game=game)
 
 
 def main():
