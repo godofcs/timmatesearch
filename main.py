@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, request, make_response, session, abort
 from flask_wtf import FlaskForm
-from flask_login import LoginManager, login_user, logout_user, current_user, login_manager
+from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
 from data import db_session, users
@@ -11,7 +11,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
 login_manager = LoginManager()
 login_manager.init_app(app)
-types_games = {"CS_GO": [{"workmates": []}, {"match_making": []}]}
 
 
 @login_manager.user_loader
@@ -89,12 +88,14 @@ def reqister():
     return render_template('register.html', colors=colors, title='Registration', form=form)
 
 
-# @app.route("/searchmates/<string:game>/<string:type>")
-# def searchmates(game, types):
-#     pass
+@app.route("/searchmates/<string:game>/<string:types>")
+@login_required
+def add_to_search(game, types):
+    pass
 
 
 @app.route("/searchmates/<string:game>")
+@login_required
 def searchmates(game):
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('search.html', colors=colors, game=game)
