@@ -11,6 +11,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
 login_manager = LoginManager()
 login_manager.init_app(app)
+types_games = {"CS_GO": [{"workmates": []}, {"match_making": []}]}
 
 
 @login_manager.user_loader
@@ -86,6 +87,11 @@ def reqister():
         return redirect('/login')
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('register.html', colors=colors, title='Registration', form=form)
+
+
+@app.route("/searchmates/<str:game>/<str:type>")
+def searchmates(game, type):
+    pass
 
 
 def main():
