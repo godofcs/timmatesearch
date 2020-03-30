@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% for item in news %}
+<div style="margin-top: 38px; background-color: #f5f5f5; margin-right: 40px; padding-left: 50px;
+ padding-top: 40px; padding-bottom: 40px;"
+     class="col-md6 border rounded">
+    <h2>{{item.title}}</h2>
+</div>
+{% endfor %}
+{% endblock %}
