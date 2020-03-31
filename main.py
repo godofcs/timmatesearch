@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, request, make_response, session, abort
 from flask_wtf import FlaskForm
-from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, login_required
+from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, \
+    login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
-from data import db_session, users, login, registration
+from data import db_session, users, login_class, registration
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -33,7 +34,7 @@ def logout():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = login.LoginForm()
+    form = login_class.LoginForm()
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():
         sessions = db_session.create_session()
