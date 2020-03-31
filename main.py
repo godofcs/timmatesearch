@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
-from data import db_session, users
+from data import db_session, users, login, registration
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -17,22 +17,6 @@ login_manager.init_app(app)
 def load_user(user_id):
     sessions = db_session.create_session()
     return sessions.query(users.User).get(user_id)
-
-
-class RegisterForm(FlaskForm):
-    email = StringField('email', validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
-    password_again = PasswordField('repeat the password', validators=[DataRequired()])
-    about = StringField('About you', validators=[DataRequired()])
-    name = StringField('nickname', validators=[DataRequired()])
-    submit = SubmitField('login')
-
-
-class LoginForm(FlaskForm):
-    email = StringField("email", validators=[DataRequired()])
-    password = PasswordField('password', validators=[DataRequired()])
-    remember_me = BooleanField('remember me')
-    submit = SubmitField('login')
 
 
 @app.route("/")
@@ -49,7 +33,7 @@ def logout():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = login.LoginForm()
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():
         sessions = db_session.create_session()
@@ -65,7 +49,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
-    form = RegisterForm()
+    form = registration.RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
