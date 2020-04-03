@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
     login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
-from data import db_session, users, login_class, registration
+from data import db_session, users, login_class, registration, redefine_roles
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -64,7 +64,7 @@ def reqister():
         user = users.User(name=form.name.data,
                           email=form.email.data,
                           password=form.password.data,
-                          about=form.about.data)
+                          role="user")
         user.set_password(form.password.data)
         sessions.add(user)
         sessions.commit()
@@ -84,6 +84,45 @@ def add_to_search(game, types):
 def searchmates(game):
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('search.html', colors=colors, game=game)
+
+
+@app.route("/cyberclubs")
+def cyberclubs():
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template('cyberclubs.html', colors=colors)
+
+
+@app.route("/redefine_role", methods=["GET", "POST"])
+def redefine_role():
+    form = redefine_roles.Redefine_role()
+    colors = choice(["primary", "success", "danger", "info"])
+    if form.validate_on_submit():
+        if 'submit' in request.form:
+            try:
+                sessions = db_session.create_session()
+                user_info = sessions.query(users.User).filter(
+                    users.User.id == form.user_id.data).first()
+                return render_template('redefine_role.html', colors=colors, form=form,
+                                       user_name=user_info.name,
+                                       user_role=user_info.role)
+            except AttributeError:
+                return render_template('redefine_role.html', colors=colors, form=form,
+                                       message="Данного id не существует!",
+                                       user_name="",
+                                       user_role="")
+        elif 'save' in request.form:
+            sessions = db_session.create_session()
+            new_user_role = form.input_user_role.data
+            user_info = sessions.query(users.User).filter(
+                users.User.id == form.user_id.data).first()
+            user_info.role = new_user_role
+            sessions.commit()
+            return render_template('redefine_role.html', colors=colors, form=form,
+                                   user_name="",
+                                   user_role="")
+    return render_template('redefine_role.html', colors=colors, form=form,
+                           user_name="",
+                           user_role="")
 
 
 def main():
