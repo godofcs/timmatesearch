@@ -9,5 +9,5 @@ class Games(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    types = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.ARRAY(sqlalchemy.Integer)), nullable=False)
+    types = sqlalchemy.Column(sqlalchemy.ARRAY(sqlalchemy.Integer), nullable=True)
 

@@ -4,9 +4,10 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
     login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
-from data import db_session, users, login_class, registration, redefine_roles
+from data import db_session, users, login_class, registration, redefine_roles, news
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
+import feedparser
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
@@ -22,8 +23,11 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
+    news_theft()
+    session = db_session.create_session()
+    nowosty = session.query(news.News)
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("index.html", colors=colors)
+    return render_template("index.html", colors=colors, news=nowosty)
 
 
 @app.route('/logout')
@@ -77,6 +81,23 @@ def reqister():
 @login_required
 def add_to_search(game, types):
     pass
+
+
+def news_theft():
+    session = db_session.create_session()
+    NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
+    nowosty = NewsFeed["entries"]
+    for new in nowosty:
+        title = new["title"]
+        content = new["summary"]
+        new_new = news.News(
+            title=title,
+            content=content,
+        )
+        old_new = session.query(news.News).get(content)
+        if not old_new:
+            session.add(new_new)
+    session.commit()
 
 
 @app.route("/searchmates/<string:game>")
