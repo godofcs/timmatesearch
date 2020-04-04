@@ -4,10 +4,11 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
     login_required
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
-from data import db_session, users, login_class, registration, redefine_roles, news
+from data import db_session, users, login_class, registration, redefine_roles, news, \
+    translater
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
-import feedparser
+import feedparser, pprint
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
@@ -24,8 +25,9 @@ def load_user(user_id):
 @app.route("/")
 def index():
     news_theft()
+    print(10000)
     session = db_session.create_session()
-    nowosty = session.query(news.News)
+    nowosty = session.query(news.News).order_by(news.News.created_date.desc())
     colors = choice(["primary", "success", "danger", "info"])
     return render_template("index.html", colors=colors, news=nowosty)
 
@@ -85,18 +87,32 @@ def add_to_search(game, types):
 
 def news_theft():
     session = db_session.create_session()
-    NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
+    NewsFeed = feedparser.parse("https://news.yandex.us/games.rss")
+    pprint.pprint(NewsFeed)
     nowosty = NewsFeed["entries"]
     for new in nowosty:
         title = new["title"]
         content = new["summary"]
-        new_new = news.News(
-            title=title,
-            content=content,
-        )
-        old_new = session.query(news.News).get(content)
-        if not old_new:
+        old_news = session.query(news.News)
+        coincidence = False
+        for old_new in old_news:
+            if old_new.rus_content == content:
+                coincidence = True
+        if not coincidence:
+            print(1)
+            new_new = news.News(
+                title=translater.translate(title),
+                rus_content=content,
+                content=translater.translate(content)
+            )
             session.add(new_new)
+    session.commit()
+    nowosty = session.query(news.News).order_by(news.News.created_date.desc())
+    count = 0
+    for new in nowosty:
+        if count > 50:
+            session.delete(new)
+        count += 1
     session.commit()
 
 
