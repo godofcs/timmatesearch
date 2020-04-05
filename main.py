@@ -25,11 +25,33 @@ def load_user(user_id):
 @app.route("/")
 def index():
     news_theft()
-    print(10000)
-    session = db_session.create_session()
-    nowosty = session.query(news.News).order_by(news.News.created_date.desc())
+    counter_1 = 6
+    counter_2 = 0
+    next_page = 2
+    back_page = 2
+    sessions = db_session.create_session()
+    news_on_page = sessions.query(news.News).order_by(news.News.created_date.desc())
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("index.html", colors=colors, news=nowosty)
+    return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
+                           counter_2=counter_2, next_page=next_page, back_page=back_page)
+
+
+@app.route("/page/<int:num>")
+def new_page(num):
+    news_theft()
+    counter_1 = num * 5 + 1
+    counter_2 = counter_1 - 6
+    next_page = num + 1
+    back_page = num - 1
+    if num == 1:
+        back_page = 1
+    if num == 6:
+        next_page = 6
+    sessions = db_session.create_session()
+    news_on_page = sessions.query(news.News).order_by(news.News.created_date.desc())
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
+                           counter_2=counter_2, next_page=next_page, back_page=back_page)
 
 
 @app.route('/logout')
@@ -87,7 +109,7 @@ def add_to_search(game, types):
 
 def news_theft():
     session = db_session.create_session()
-    NewsFeed = feedparser.parse("https://news.yandex.us/games.rss")
+    NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
     pprint.pprint(NewsFeed)
     nowosty = NewsFeed["entries"]
     for new in nowosty:

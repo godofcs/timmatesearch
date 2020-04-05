@@ -3,11 +3,22 @@
 
 {% block content %}
 {% for item in news %}
-<div style="margin-top: 38px; background-color: #f5f5f5; margin-right: 40px; padding-left: 50px;
- padding-top: 40px; padding-bottom: 40px;"
-     class="col-md6 border rounded">
-    <h2>{{item.title}}</h2>
-    <h4>{{item.content}}</h4>
-</div>
+    {% if item.id < counter_1 and item.id > counter_2 %}
+        <div style="margin-top: 38px; background-color: #f5f5f5; margin-right: 40px; padding-left: 50px;
+         padding-top: 40px; padding-bottom: 40px;"
+             class="col-md6 border rounded">
+            <h4>{{item.title}}</h4>
+            <h6>{{item.content}}</h6>
+        </div>
+    {% endif %}
 {% endfor %}
+<div style="display: flex;">
+    <p style="margin-left: 30%;"><a style="margin-top: 40px; margin-bottom: 40px;"
+                                      href="/page/{{back_page}}" class="btn btn-{{colors}}">
+        Back page</a></p>
+    <p style="margin-left: 20%;"><a style="margin-top: 40px; margin-bottom: 40px;"
+                                      href="/page/{{next_page}}" class="btn btn-{{colors}}">
+        Next page</a></p>
+
+</div>
 {% endblock %}
