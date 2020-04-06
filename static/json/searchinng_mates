@@ -1,0 +1,33 @@
+{
+    {"CS:GO": {
+        "matchmaking": [],
+        "workmates": [],
+    },
+    "Dota2": {
+        "ranked all pick": [],
+        "all pick": [],
+        "single draft": [],
+        "random draft": [],
+        "turbo": [],
+        "all random": [],
+        "captains mode": [],
+        "captains draft": [],
+        "least played": [],
+        "limited heroes": [],
+        "ability draft": [],
+        "all random deathmatch": [],
+        "one vs one Solo Mid": []
+    },
+    "Trove": [],
+    "GTA Online": [],
+    "PUBG": {
+        "duo": [],
+        "squad": [],
+        "one man squad": []
+    },
+    "Paladins": {
+        "siege": [],
+        "onslaught": [],
+        "team fight to the death": []
+    }}
+}
