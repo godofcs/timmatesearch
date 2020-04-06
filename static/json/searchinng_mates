@@ -4,19 +4,8 @@
         "workmates": [],
     },
     "Dota2": {
-        "ranked all pick": [],
-        "all pick": [],
-        "single draft": [],
-        "random draft": [],
-        "turbo": [],
-        "all random": [],
-        "captains mode": [],
-        "captains draft": [],
-        "least played": [],
-        "limited heroes": [],
-        "ability draft": [],
-        "all random deathmatch": [],
-        "one vs one Solo Mid": []
+        "rating game": [],
+        "turbo": []
     },
     "Trove": [],
     "GTA Online": [],
