@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <tr style="font-size: 18pt;">
+            <th scope="col">Number</th>
+            <th scope="col">Name</th>
+            <th scope="col">Reputation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mate in mates %}
+        <tr style="font-size: 18pt;">
+            <th scope="col">{{ loop.index }}</th>
+            <td><pre><img class="round" src="{{ mates[loop.index0][2] }}" alt="" height="50" width="50"> {{ mates[loop.index0][0] }}
+            </pre></td>
+            {% if mates[loop.index0][1] <= 5 %}
+                <td><span>&#x1F5A4;</span></td>
+            {% elif 5 < mates[loop.index0][1] <= 10 %}
+                <td><span>&#x1F494;</span></td>
+            {% elif 10 < mates[loop.index0][1] <= 25 %}
+                <td><span>&#x2764;</span></td>
+            {% elif 25 < mates[loop.index0][1] <= 45 %}
+                <td><span>&#x1F9E1;</span></td>
+            {% elif 45 < mates[loop.index0][1] <= 60 %}
+                <td><span>&#x1F49B;</span></td>
+            {% elif 60 < mates[loop.index0][1] <= 75 %}
+                <td><span>&#x1F49A;</span></td>
+            {% elif 75 < mates[loop.index0][1] <= 90 %}
+                <td><span>&#x1F499;</span></td>
+            {% elif 90 < mates[loop.index0][1] %}
+                <td><span>&#x1F49C;</span></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

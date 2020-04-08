@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
+<div class="border border-left border-right border-top border-bottom border-{{ colors }} border-rounded">
+    <p style="font-size: 20pt; margin: 10px;">
+        <img class="img-fluid rounded-circle" src="{{ user.avatar }}" alt="" height="250" width="250" vspace="5" hspace="5" align="left" style="margin-right: 20px;">
+        Nik: {{ user.name }}<br>
+        Role: {{ user.role }}<br>
+        Favorite games: {{ user.favorite_games }}<br>
+        Reputation: {{ user.reputation }}<br>
+        {% if current_user.id == user.id %}
+        <a class="btn btn-warning" href="/edit_profile" style="font-size: 16pt;">Edit profile</a>
+        {% endif %}
+        <br>
+        <br>
+        <br>
+    </p>
+</div>
+{% endblock %}

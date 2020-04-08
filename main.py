@@ -8,7 +8,7 @@ from data import db_session, users, login_class, registration, redefine_roles, n
     translater
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
-import feedparser, pprint
+import feedparser, pprint, json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
@@ -25,6 +25,7 @@ def load_user(user_id):
 @app.route("/")
 def index():
     news_theft()
+    check_last_page()
     counter_1 = 6
     counter_2 = 0
     next_page = 2
@@ -39,6 +40,7 @@ def index():
 @app.route("/page/<int:num>")
 def new_page(num):
     news_theft()
+    check_last_page()
     counter_1 = num * 5 + 1
     counter_2 = counter_1 - 6
     next_page = num + 1
@@ -62,6 +64,7 @@ def logout():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    check_last_page()
     form = login_class.LoginForm()
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():
@@ -78,6 +81,7 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
+    check_last_page()
     form = registration.RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -104,13 +108,66 @@ def reqister():
 @app.route("/searchmates/<string:game>/<string:types>")
 @login_required
 def add_to_search(game, types):
-    pass
+    if not "/searchmates" in current_user.last_page:
+        session = db_session.create_session()
+        current_user.last_page = f"/searchmates/{game}/{types}"
+        session.merge(current_user)
+        session.commit()
+        with open("static/json/searching_mates.json") as file:
+            data = json.load(file)
+        if current_user.id not in data[game][types]:
+            data[game][types] += [current_user.id]
+        with open("static/json/searching_mates.json", "w") as file:
+            json.dump(data, file)
+    elif ("/searchmates" in current_user.last_page and
+          (game != current_user.last_page.split("/")[1] or
+          types != current_user.last_page.split("/")[2])):
+        with open("static/json/searching_mates.json") as file:
+            data = json.load(file)
+        games, typess = current_user.last_page.split("/")[2], current_user.last_page.split("/")[3]
+        if current_user.id in data[games][typess]:
+            del data[games][typess][data[games][typess].index(current_user.id)]
+        with open("static/json/searching_mates.json", "w") as file:
+            json.dump(data, file)
+        session = db_session.create_session()
+        current_user.last_page = f"/searchmates/{game}/{types}"
+        session.merge(current_user)
+        session.commit()
+        with open("static/json/searching_mates.json") as file:
+            data = json.load(file)
+        if current_user.id not in data[game][types]:
+            data[game][types] += [current_user.id]
+        with open("static/json/searching_mates.json", "w") as file:
+            json.dump(data, file)
+    mates_id = data[game][types]
+    mates = []
+    session = db_session.create_session()
+    for mate_id in mates_id:
+        mate = session.query(users.User).get(mate_id)
+        mates.append([mate.name, mate.reputation, mate.avatar])
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template("search_table.html", colors=colors, mates=mates)
+
+
+def check_last_page():
+    if current_user.is_authenticated and "/searchmates" in current_user.last_page:
+        with open("static/json/searching_mates.json") as file:
+            data = json.load(file)
+        game, types = current_user.last_page.split("/")[2], current_user.last_page.split("/")[3]
+        if current_user.id in data[game][types]:
+            del data[game][types][data[game][types].index(current_user.id)]
+        with open("static/json/searching_mates.json", "w") as file:
+            json.dump(data, file)
+        session = db_session.create_session()
+        current_user.last_page = "/"
+        session.merge(current_user)
+        session.commit()
 
 
 def news_theft():
     session = db_session.create_session()
     NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
-    pprint.pprint(NewsFeed)
+    #pprint.pprint(NewsFeed)
     nowosty = NewsFeed["entries"]
     for new in nowosty:
         title = new["title"]
@@ -121,7 +178,6 @@ def news_theft():
             if old_new.rus_content == content:
                 coincidence = True
         if not coincidence:
-            print(1)
             new_new = news.News(
                 title=translater.translate(title),
                 rus_content=content,
@@ -141,18 +197,31 @@ def news_theft():
 @app.route("/searchmates/<string:game>")
 @login_required
 def searchmates(game):
+    check_last_page()
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('search.html', colors=colors, game=game)
 
 
 @app.route("/cyberclubs")
 def cyberclubs():
+    check_last_page()
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('cyberclubs.html', colors=colors)
 
 
+@app.route("/profile/<int:id>")
+@login_required
+def user_info(id):
+    session = db_session.create_session()
+    user = session.query(users.User).get(id)
+    if user:
+        colors = choice(["primary", "success", "danger", "info"])
+        return render_template("profile.html", colors=colors, user=user)
+
+
 @app.route("/redefine_role", methods=["GET", "POST"])
 def redefine_role():
+    check_last_page()
     form = redefine_roles.Redefine_role()
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():

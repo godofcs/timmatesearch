@@ -15,6 +15,11 @@ class User(SqlAlchemyBase, UserMixin):
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
+    reputation = sqlalchemy.Column(sqlalchemy.Integer, default=50)
+    avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True,
+                               default="/static/img/avatar_img/0.jpg")
+    favorite_games = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    last_page = sqlalchemy.Column(sqlalchemy.String, nullable=True, default="/")
     news = orm.relation('News', back_populates='user')
 
     def set_password(self, password):
