@@ -121,7 +121,7 @@ def add_to_search(game, types):
             json.dump(data, file)
     elif ("/searchmates" in current_user.last_page and
           (game != current_user.last_page.split("/")[1] or
-          types != current_user.last_page.split("/")[2])):
+           types != current_user.last_page.split("/")[2])):
         with open("static/json/searching_mates.json") as file:
             data = json.load(file)
         games, typess = current_user.last_page.split("/")[2], current_user.last_page.split("/")[3]
@@ -167,7 +167,6 @@ def check_last_page():
 def news_theft():
     session = db_session.create_session()
     NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
-    #pprint.pprint(NewsFeed)
     nowosty = NewsFeed["entries"]
     for new in nowosty:
         title = new["title"]
