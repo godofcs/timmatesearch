@@ -10,7 +10,8 @@
 {% block content %}
 {% for item in news %}
     {% if item.id < counter_1 and item.id > counter_2 %}
-        <div style="margin-top: 38px; background-color: #f5f5f5; margin-right: 40px; padding-left: 50px;
+        <div style="margin-top: 38px; background-color: #f5f5f5;
+        margin-right: 40px; padding-left: 50px;
                  padding-top: 40px; padding-bottom: 40px;"
              class="col-md6 border rounded">
             <h4>{{item.title}}</h4>

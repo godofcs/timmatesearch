@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
 from data import db_session, users, login_class, registration, redefine_roles, news, \
-    translater
+    translater, forum_db, forum, answer_on_question, ask_question
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
 import feedparser, pprint, json
@@ -250,6 +250,78 @@ def redefine_role():
     return render_template('redefine_role.html', colors=colors, form=form,
                            user_name="",
                            user_role="")
+
+
+@app.route("/forum", methods=["GET", "POST"])
+def forum_func():
+    form = forum.Forum()
+    colors = choice(["primary", "success", "danger", "info"])
+    sessions = db_session.create_session()
+    forum_questions = sessions.query(forum_db.Forum).filter(forum_db.Forum.date).all()
+    return render_template("forum.html", colors=colors, form=form, forum_questions=forum_questions)
+
+
+@app.route("/forum/question/<int:num_id>", methods=["GET", "POST"])
+def forum_full_question(num_id):
+    colors = choice(["primary", "success", "danger", "info"])
+    sessions = db_session.create_session()
+    forum_question = sessions.query(forum_db.Forum).filter(
+        forum_db.Forum.id == num_id).first()
+    name_users = []
+    answers = []
+    try:
+        for i in forum_question.user_id.split("/end/new_author/"):
+            if i != "None":
+                name_users.append(sessions.query(users.User).filter(
+                    users.User.id == i).first().name)
+        for i in forum_question.answers.split("/end/new_answer/"):
+            if i != "None":
+                answers.append(i)
+    except AttributeError:
+        pass
+    return render_template("forum_full_question.html", colors=colors, num_id=num_id,
+                           title=forum_question.title, question=forum_question.question,
+                           answers=answers, user_name=name_users, count=len(answers))
+
+
+@app.route("/forum/answere_on_question/<int:num_id>", methods=["GET", "POST"])
+def answer_on_question_func(num_id):
+    if request.method == 'GET':
+        form = answer_on_question.Answer_on_question()
+        colors = choice(["primary", "success", "danger", "info"])
+        if form.validate_on_submit():
+            sessions = db_session.create_session()
+            answer = form.answer.data
+            answer_db = sessions.query(forum_db.Forum).filter(
+                forum_db.Forum.id == num_id).first()
+            first_answer = str(answer_db.answers) + "/end/new_answer/"
+            first_author = str(answer_db.user_id) + "/end/new_author/"
+            user_id_db = sessions.query(forum_db.Forum).filter(
+                forum_db.Forum.id == num_id).first()
+            id_user = current_user.id
+            user_id_db.user_id = str(first_author) + str(id_user)
+            answer_db.answers = str(first_answer) + str(answer)
+            sessions.commit()
+        return render_template("answer_on_question.html", colors=colors, num_id=num_id, form=form)
+    elif request.method == 'POST':
+        return redirect("/forum/question/1")
+
+
+@app.route("/forum/ask_question", methods=["GET", "POST"])
+def ask_a_question():
+    form = ask_question.Ask_question()
+    colors = choice(["primary", "success", "danger", "info"])
+    if form.validate_on_submit():
+        sessions = db_session.create_session()
+        forum_ask_question = forum_db.Forum(
+            title=str(form.title.data),
+            question=str(form.question.data),
+            theme=str(form.theme.data)
+        )
+        sessions.add(forum_ask_question)
+        sessions.commit()
+        return redirect("/forum")
+    return render_template("ask_question.html", colors=colors, form=form)
 
 
 def main():
