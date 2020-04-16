@@ -33,11 +33,15 @@ def index():
     sessions = db_session.create_session()
     news_on_page = sessions.query(news.News).order_by(news.News.created_date.desc())
     colors = choice(["primary", "success", "danger", "info"])
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
                            counter_2=counter_2, next_page=next_page, back_page=back_page,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/page/<int:num>")
@@ -55,11 +59,15 @@ def new_page(num):
     sessions = db_session.create_session()
     news_on_page = sessions.query(news.News).order_by(news.News.created_date.desc())
     colors = choice(["primary", "success", "danger", "info"])
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
                            counter_2=counter_2, next_page=next_page, back_page=back_page,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route('/logout')
@@ -73,8 +81,12 @@ def login():
     check_last_page()
     form = login_class.LoginForm()
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():
         user = sessions.query(users.User).filter(users.User.email == form.email.data).first()
@@ -83,9 +95,9 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect('/')
         return render_template('login.html', message='Invalid username or password', colors=colors,
-                               form=form, main_color=main_color.theme)
+                               form=form, main_color=main_color)
     return render_template('login.html', title='Авторизация', colors=colors, form=form,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -93,16 +105,20 @@ def reqister():
     check_last_page()
     form = registration.RegisterForm()
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
-                                   form=form, main_color=main_color.theme,
+                                   form=form, main_color=main_color,
                                    message="Passwords don't match")
         if sessions.query(users.User).filter(users.User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
-                                   form=form, main_color=main_color.theme,
+                                   form=form, main_color=main_color,
                                    message="This user already exists")
         user = users.User(name=form.name.data,
                           email=form.email.data,
@@ -119,7 +135,7 @@ def reqister():
         return redirect('/login')
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('register.html', colors=colors, title='Registration', form=form,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/searchmates/<string:game>/<string:types>")
@@ -164,10 +180,14 @@ def add_to_search(game, types):
         mates.append([mate.name, mate.reputation, mate.avatar])
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("search_table.html", colors=colors, mates=mates,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 def check_last_page():
@@ -220,19 +240,27 @@ def searchmates(game):
     check_last_page()
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
-    return render_template('search.html', colors=colors, game=game, main_color=main_color.theme)
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template('search.html', colors=colors, game=game, main_color=main_color)
 
 
 @app.route("/cyberclubs")
 def cyberclubs():
     check_last_page()
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template('cyberclubs.html', colors=colors, main_color=main_color.theme)
+    return render_template('cyberclubs.html', colors=colors, main_color=main_color)
 
 
 @app.route("/profile/<int:id>")
@@ -242,9 +270,13 @@ def user_info(id):
     user = sessions.query(users.User).get(id)
     if user:
         colors = choice(["primary", "success", "danger", "info"])
-        main_color = sessions.query(settings_db.Settings_db).filter(
-            settings_db.Settings_db.user_id == current_user.id).first()
-        return render_template("profile.html", colors=colors, user=user, main_color=main_color.theme)
+        try:
+            settings_info = sessions.query(settings_db.Settings_db).filter(
+                settings_db.Settings_db.user_id == current_user.id).first()
+            main_color = settings_info.theme
+        except AttributeError:
+            main_color = "white"
+        return render_template("profile.html", colors=colors, user=user, main_color=main_color)
 
 
 @app.route("/redefine_role", methods=["GET", "POST"])
@@ -253,8 +285,12 @@ def redefine_role():
     form = redefine_roles.Redefine_role()
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     if form.validate_on_submit():
         if 'submit' in request.form:
             try:
@@ -264,13 +300,13 @@ def redefine_role():
                 return render_template('redefine_role.html', colors=colors, form=form,
                                        user_name=user_info.name,
                                        user_role=user_info.role,
-                                       main_color=main_color.theme)
+                                       main_color=main_color)
             except AttributeError:
                 return render_template('redefine_role.html', colors=colors, form=form,
                                        message="Данного id не существует!",
                                        user_name="",
                                        user_role="",
-                                       main_color=main_color.theme)
+                                       main_color=main_color)
         elif 'save' in request.form:
             sessions = db_session.create_session()
             new_user_role = form.input_user_role.data
@@ -281,11 +317,11 @@ def redefine_role():
             return render_template('redefine_role.html', colors=colors, form=form,
                                    user_name="",
                                    user_role="",
-                                   main_color=main_color.theme)
+                                   main_color=main_color)
     return render_template('redefine_role.html', colors=colors, form=form,
                            user_name="",
                            user_role="",
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/forum", methods=["GET", "POST"])
@@ -294,10 +330,14 @@ def forum_func():
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
     forum_questions = sessions.query(forum_db.Forum).filter(forum_db.Forum.date).all()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("forum.html", colors=colors, form=form, forum_questions=forum_questions,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/forum/question/<int:num_id>", methods=["GET", "POST"])
@@ -318,12 +358,16 @@ def forum_full_question(num_id):
                 answers.append(i)
     except AttributeError:
         pass
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("forum_full_question.html", colors=colors, num_id=num_id,
                            title=forum_question.title, question=forum_question.question,
                            answers=answers, user_name=name_users, count=len(answers),
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/forum/answere_on_question/<int:num_id>", methods=["GET", "POST"])
@@ -345,10 +389,14 @@ def answer_on_question_func(num_id):
             answer_db.answers = str(first_answer) + str(answer)
             sessions.commit()
         sessions = db_session.create_session()
-        main_color = sessions.query(settings_db.Settings_db).filter(
-            settings_db.Settings_db.user_id == current_user.id).first()
+        try:
+            settings_info = sessions.query(settings_db.Settings_db).filter(
+                settings_db.Settings_db.user_id == current_user.id).first()
+            main_color = settings_info.theme
+        except AttributeError:
+            main_color = "white"
         return render_template("answer_on_question.html", colors=colors, num_id=num_id, form=form,
-                               main_color=main_color.theme)
+                               main_color=main_color)
     elif request.method == 'POST':
         return redirect("/forum/question/1")
 
@@ -368,10 +416,14 @@ def ask_a_question():
         sessions.commit()
         return redirect("/forum")
     sessions = db_session.create_session()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
     return render_template("ask_question.html", colors=colors, form=form,
-                           main_color=main_color.theme)
+                           main_color=main_color)
 
 
 @app.route("/settings", methods=["GET", "POST"])
@@ -395,9 +447,13 @@ def site_settings():
         elif 'ru_language' in request.form:
             user_info.language = "ru"
         sessions.commit()
-    main_color = sessions.query(settings_db.Settings_db).filter(
-        settings_db.Settings_db.user_id == current_user.id).first()
-    return render_template("settings.html", colors=colors, form=form, main_color=main_color.theme)
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template("settings.html", colors=colors, form=form, main_color=main_color)
 
 
 def main():
