@@ -2,6 +2,26 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/style.css">
+<style>
+      #okno {
+        width: 300px;
+        height: 50px;
+        text-align: center;
+        padding: 15px;
+        color: #0000cc;
+        display: none;
+      }
+      #okno:target {display: block;}
+      #close {
+        display: inline-block;
+        padding: 0 12px;
+        margin: 10px;
+        text-decoration: none;
+        font-size: 14pt;
+        cursor:pointer;
+      }
+      #close:target {background: #e6e6ff;}
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -17,25 +37,35 @@
         {% for mate in mates %}
         <tr style="font-size: 18pt;">
             <th scope="col">{{ loop.index }}</th>
-            <td><pre><img class="round" src="{{ mates[loop.index0][2] }}" alt="" height="50" width="50"> {{ mates[loop.index0][0] }}
-            </pre></td>
+            <td>
+                <a href="#okno" style="text-decoration: none;">
+                    <pre><img class="round" src="{{ mates[loop.index0][2] }}" alt="" height="50" width="50"> {{ mates[loop.index0][0] }}
+                    </pre></a>
+            </td>
+            <td>
             {% if mates[loop.index0][1] <= 5 %}
-                <td><span>&#x1F5A4;</span></td>
+                <span>&#x1F5A4;</span>
             {% elif 5 < mates[loop.index0][1] <= 10 %}
-                <td><span>&#x1F494;</span></td>
+                <span>&#x1F494;</span>
             {% elif 10 < mates[loop.index0][1] <= 25 %}
-                <td><span>&#x2764;</span></td>
+                <span>&#x2764;</span>
             {% elif 25 < mates[loop.index0][1] <= 45 %}
-                <td><span>&#x1F9E1;</span></td>
+                <span>&#x1F9E1;</span>
             {% elif 45 < mates[loop.index0][1] <= 60 %}
-                <td><span>&#x1F49B;</span></td>
+                <span>&#x1F49B;</span>
             {% elif 60 < mates[loop.index0][1] <= 75 %}
-                <td><span>&#x1F49A;</span></td>
+                <span>&#x1F49A;</span>
             {% elif 75 < mates[loop.index0][1] <= 90 %}
-                <td><span>&#x1F499;</span></td>
+                <span>&#x1F499;</span>
             {% elif 90 < mates[loop.index0][1] %}
-                <td><span>&#x1F49C;</span></td>
+                <span>&#x1F49C;</span>
             {% endif %}
+                <div id="okno">
+                    <a href="#close" style="text-decoration: none;">
+                    <a href="/profile/{{mates[loop.index0][3]}}" class="btn btn-success">View profile</a><a href="/chats/{{current_user.id}}/{{mates[loop.index0][3]}}" class="btn btn-warning">Start a chat</a>
+                    </a>
+                </div>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
