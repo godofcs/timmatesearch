@@ -5,10 +5,11 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
 from data import db_session, users, login_class, registration, redefine_roles, news, \
-    translater, forum_db, forum, answer_on_question, ask_question, settings, settings_db
+    translater, chatsform, settings_db, forum_db, settings_db, settings, forum, \
+    answer_on_question, ask_question
 from random import choice
 from werkzeug.security import generate_password_hash, check_password_hash
-import feedparser, pprint, json
+import feedparser, pprint, json, datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
@@ -72,6 +73,17 @@ def new_page(num):
 
 @app.route('/logout')
 def logout():
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    for key in data["chats"].keys():
+        if str(current_user.id) in key:
+            count = 0
+            for i in range(len(data["chats"][key])):
+                if current_user.id == data["chats"][key][i - count][1]:
+                    del data["chats"][key][i - count]
+                    count += 1
+    with open("static/json/chaty.json", "w") as file:
+        json.dump(data, file)
     logout_user()
     return redirect('/')
 
@@ -177,7 +189,7 @@ def add_to_search(game, types):
     session = db_session.create_session()
     for mate_id in mates_id:
         mate = session.query(users.User).get(mate_id)
-        mates.append([mate.name, mate.reputation, mate.avatar])
+        mates.append([mate.name, mate.reputation, mate.avatar, mate.id, 0])
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
     try:
@@ -188,6 +200,46 @@ def add_to_search(game, types):
         main_color = "white"
     return render_template("search_table.html", colors=colors, mates=mates,
                            main_color=main_color)
+
+
+@app.route("/chats/<int:first_id>/<int:second_id>", methods=["GET", "POST"])
+def chat(first_id, second_id):
+    # chats: {
+    #   url:
+    #       [
+    #           ["data", "user", "text"]
+    #       ]
+    # }
+    first_url = str(first_id) + "_" + str(second_id)
+    second_url = str(second_id) + "_" + str(first_id)
+    url = ""
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    if first_url in data["chats"].keys():
+        url = first_url
+    elif second_url in data["chats"].keys():
+        url = second_url
+    else:
+        url = first_url
+    if not url in data["chats"].keys():
+        data["chats"].update([(url, [])])
+        with open("static/json/chaty.json", "w") as file:
+            json.dump(data, file)
+        with open("static/json/chaty.json") as file:
+            data = json.load(file)
+    form = chatsform.ChatsForm()
+    if request.method == "POST":
+        with open("static/json/chaty.json") as file:
+            data = json.load(file)
+        time = datetime.datetime.now()
+        data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
+                                 time.second), current_user.id, form.message.data]]
+        with open("static/json/chaty.json", "w") as file:
+            json.dump(data, file)
+        form.message.data = ""
+    chat = data["chats"][url]
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template("chats.html", colors=colors, chat=chat, form=form)
 
 
 def check_last_page():
@@ -269,6 +321,7 @@ def user_info(id):
     sessions = db_session.create_session()
     user = sessions.query(users.User).get(id)
     if user:
+        user_id_str = str(user.id)
         colors = choice(["primary", "success", "danger", "info"])
         try:
             settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -276,7 +329,8 @@ def user_info(id):
             main_color = settings_info.theme
         except AttributeError:
             main_color = "white"
-        return render_template("profile.html", colors=colors, user=user, main_color=main_color)
+        return render_template("profile.html", colors=colors, user=user, main_color=main_color,
+                               userid=user_id_str)
 
 
 @app.route("/redefine_role", methods=["GET", "POST"])

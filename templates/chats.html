@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/style.css">
+<meta charset="utf-8">
+{% endblock %}
+
+{% block content %}
+<div style="overflow-y: scroll;" class="h-50">
+    {% for message in chat %}
+        {% if current_user.id == message[1] %}
+            <p align="right" style="margin-right: 15px;">{{ message[2] }}</p>
+        {% else %}
+            <p align="left" style="margin-left: 15px;">{{ message[2] }}</p>
+        {% endif %}
+    {% endfor %}
+</div>
+<form action="" method="post">
+    <p style="display: flex;">{{ form.message(class="form-control w-85") }}{{ form.send(type="submit", class="btn btn-primary") }}</p>
+</form>
+{% endblock %}
