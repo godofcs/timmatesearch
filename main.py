@@ -384,6 +384,19 @@ def redefine_role():
                            main_color=main_color)
 
 
+@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    sessions = db_session.create_session()
+    new = sessions.query(news.News).filter(news.News.id == id).first()
+    if new:
+        sessions.delete(new)
+        sessions.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 @app.route("/forum", methods=["GET", "POST"])
 def forum_func():
     form = forum.Forum()
