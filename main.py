@@ -426,22 +426,9 @@ def forum_full_question(num_id):
 
 @app.route("/forum/answere_on_question/<int:num_id>", methods=["GET", "POST"])
 def answer_on_question_func(num_id):
+    form = answer_on_question.Answer_on_question()
     if request.method == 'GET':
-        form = answer_on_question.Answer_on_question()
         colors = choice(["primary", "success", "danger", "info"])
-        if form.validate_on_submit():
-            sessions = db_session.create_session()
-            answer = form.answer.data
-            answer_db = sessions.query(forum_db.Forum).filter(
-                forum_db.Forum.id == num_id).first()
-            first_answer = str(answer_db.answers) + "/end/new_answer/"
-            first_author = str(answer_db.user_id) + "/end/new_author/"
-            user_id_db = sessions.query(forum_db.Forum).filter(
-                forum_db.Forum.id == num_id).first()
-            id_user = current_user.id
-            user_id_db.user_id = str(first_author) + str(id_user)
-            answer_db.answers = str(first_answer) + str(answer)
-            sessions.commit()
         sessions = db_session.create_session()
         try:
             settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -452,7 +439,19 @@ def answer_on_question_func(num_id):
         return render_template("answer_on_question.html", colors=colors, num_id=num_id, form=form,
                                main_color=main_color)
     elif request.method == 'POST':
-        return redirect("/forum/question/1")
+        sessions = db_session.create_session()
+        answer = form.answer.data
+        answer_db = sessions.query(forum_db.Forum).filter(
+            forum_db.Forum.id == num_id).first()
+        first_answer = str(answer_db.answers) + "/end/new_answer/"
+        first_author = str(answer_db.user_id) + "/end/new_author/"
+        user_id_db = sessions.query(forum_db.Forum).filter(
+            forum_db.Forum.id == num_id).first()
+        id_user = current_user.id
+        user_id_db.user_id = str(first_author) + str(id_user)
+        answer_db.answers = str(first_answer) + str(answer)
+        sessions.commit()
+        return redirect("/forum")
 
 
 @app.route("/forum/ask_question", methods=["GET", "POST"])
