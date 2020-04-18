@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, make_response, session, abort
+from flask import Flask, render_template, redirect, request, make_response, session, abort, jsonify
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, \
     login_required
@@ -21,6 +21,12 @@ login_manager.init_app(app)
 def load_user(user_id):
     sessions = db_session.create_session()
     return sessions.query(users.User).get(user_id)
+
+
+@app.errorhandler(404)  # функция ошибки
+def not_found(error):
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template("not_found.html", colors=colors)
 
 
 @app.route("/")
@@ -441,6 +447,9 @@ def answer_on_question_func(num_id):
     elif request.method == 'POST':
         sessions = db_session.create_session()
         answer = form.answer.data
+        if "/end/new_answer/" in answer:
+            correct_answer = answer.split('/end/new_answer/')
+            answer = ''.join(correct_answer)
         answer_db = sessions.query(forum_db.Forum).filter(
             forum_db.Forum.id == num_id).first()
         first_answer = str(answer_db.answers) + "/end/new_answer/"
