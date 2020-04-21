@@ -5,12 +5,18 @@
        style="margin-top: 9px;">Ask a question</a>
     {% for item in forum_questions %}
         {% set id_new = item.id %}
-        <a href="/forum/question/{{id_new}}" style="text-decoration: none; color: black;">
-            <div style="margin-top: 38px; background-color: #f5f5f5;
-         margin-right: 25px; padding-left: 50px; padding-top: 40px; padding-bottom: 40px;"
+        <a href="99"><div style="margin-top: 38px; background-color: #f5f5f5;
+        margin-right: 40px; padding-left: 10px;
+                 padding-top: 10px; padding-bottom: 40px;"
              class="col-md6 border rounded">
-            <h4>{{item.title}}</h4>
-            <h6>{{item.question}}</h6>
+            {% if current_user.role == "cleaner" or current_user.role == "admin" %}
+                <a href="/news_delete/{{ item.id }}"><img width="3%"
+                                                          height="3%"
+                                                          src="static/img/delete_button.png"></a>
+            {% endif %}
+            <div style="padding-top: 20px; padding-left: 40px;">
+                <h4>{{item.title}}</h4>
+            </div>
         </div></a>
     {% endfor %}
 {% endblock %}

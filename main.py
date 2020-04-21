@@ -6,8 +6,9 @@ from wtforms import StringField, PasswordField, SubmitField, TextAreaField, Bool
 from wtforms.validators import DataRequired
 from data import db_session, users, login_class, registration, redefine_roles, news, \
     translater, chatsform, settings_db, forum_db, settings_db, settings, forum, \
-    answer_on_question, ask_question
+    answer_on_question, ask_question, api_func
 from random import choice
+from flask_restful import reqparse, abort, Api, Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 import feedparser, pprint, json, datetime
 
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
 login_manager = LoginManager()
 login_manager.init_app(app)
+api = Api(app)
 
 
 @login_manager.user_loader
@@ -307,20 +309,6 @@ def searchmates(game):
     return render_template('search.html', colors=colors, game=game, main_color=main_color)
 
 
-@app.route("/cyberclubs")
-def cyberclubs():
-    check_last_page()
-    sessions = db_session.create_session()
-    try:
-        settings_info = sessions.query(settings_db.Settings_db).filter(
-            settings_db.Settings_db.user_id == current_user.id).first()
-        main_color = settings_info.theme
-    except AttributeError:
-        main_color = "white"
-    colors = choice(["primary", "success", "danger", "info"])
-    return render_template('cyberclubs.html', colors=colors, main_color=main_color)
-
-
 @app.route("/profile/<int:id>")
 @login_required
 def user_info(id):
@@ -534,6 +522,8 @@ def site_settings():
 def main():
     db_session.global_init("db/news.db")
     sessions = db_session.create_session()
+    api.add_resource(api_func.NewsListResource, '/api/v2/forum')
+    api.add_resource(api_func.NewsResource, '/api/v2/forum/<int:news_id>')
     app.run()
 
 
