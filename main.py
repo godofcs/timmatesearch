@@ -519,11 +519,24 @@ def site_settings():
     return render_template("settings.html", colors=colors, form=form, main_color=main_color)
 
 
+@app.route("/api")
+def api_page():
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        sessions = db_session.create_session()
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template("api_page.html", colors=colors, main_color=main_color)
+
+
 def main():
     db_session.global_init("db/news.db")
     sessions = db_session.create_session()
-    api.add_resource(api_func.NewsListResource, '/api/v2/forum')
-    api.add_resource(api_func.NewsResource, '/api/v2/forum/<int:news_id>')
+    api.add_resource(api_func.NewsListResource, '/api/forum')
+    api.add_resource(api_func.NewsResource, '/api/forum/<int:news_id>')
     app.run()
 
 
