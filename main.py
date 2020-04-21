@@ -372,11 +372,11 @@ def redefine_role():
                            main_color=main_color)
 
 
-@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/question_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def news_delete(id):
     sessions = db_session.create_session()
-    new = sessions.query(news.News).filter(news.News.id == id).first()
+    new = sessions.query(forum_db.Forum).filter(forum_db.Forum.id == id).first()
     if new:
         sessions.delete(new)
         sessions.commit()

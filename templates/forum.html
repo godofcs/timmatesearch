@@ -10,7 +10,7 @@
                  padding-top: 10px; padding-bottom: 40px;"
              class="col-md6 border rounded">
             {% if current_user.role == "cleaner" or current_user.role == "admin" %}
-                <a href="/news_delete/{{ item.id }}"><img width="3%"
+                <a href="/question_delete/{{ item.id }}"><img width="3%"
                                                           height="3%"
                                                           src="static/img/delete_button.png"></a>
             {% endif %}
