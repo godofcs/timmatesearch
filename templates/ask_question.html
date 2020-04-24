@@ -1,31 +1,30 @@
 {% extends "base.html" %}
 
 {% block head %}
-    <link rel="stylesheet" href="../../static/css/style.css">
+<link rel="stylesheet" href="../../static/css/style.css">
 {% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        {{ form.csrf_token }}
-        <p>
-            {{ form.title.label(style="font-size: 20px;") }}<br>
-            {{ form.title(class="form-control", style="width: 54%;", type="string") }}<br>
-        </p>
-        <p>
-            {{ form.question.label(style="font-size: 20px;") }}<br>
-            {{ form.question(class="form-control", style="width: 54%; height: 300px;",
-            type="string") }}<br>
-        </p>
-        <p>
-            {{ form.theme.label(style="font-size: 20px;") }}<br>
-            {{ form.theme(class="form-control", style="width: 54%;",
-            type="string") }}<br>
-        </p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    </form>
-    {% else %}
-        <div>Зарегистрируйтесь, для того чтобы получить доступ к этой странице!</div>
-    {% endif %}
+{% if current_user.is_authenticated %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    <p>
+        {{ form.title.label(style="font-size: 20px;") }}<br>
+        {{ form.title(class="form-control", style="width: 54%;", type="string") }}<br>
+    </p>
+    <p>
+        {{ form.question.label(style="font-size: 20px;") }}<br>
+        {{ form.question(class="form-control", style="width: 54%;", type="string") }}<br>
+    </p>
+    <p>
+        {{ form.theme.label(style="font-size: 20px;") }}<br>
+        {{ form.theme(class="form-control", style="width: 54%;",
+        type="string") }}<br>
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+</form>
+{% else %}
+<div>Зарегистрируйтесь, для того чтобы получить доступ к этой странице!</div>
+{% endif %}
 {% endblock %}

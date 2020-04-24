@@ -1,21 +1,46 @@
 {% extends "base.html" %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/style.css">
-<meta charset="utf-8">
+<script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"
+        charset="utf-8"></script>
+<script charset="UTF-8" type="text/javascript" src="static/script/script1.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"
+        charset="utf-8"></script>
+<meta name="http-equiv" content="Content-type: text/html; charset=UTF-8">
+<meta charset="UTF-8">
 {% endblock %}
 
 {% block content %}
-<div style="overflow-y: scroll;" class="h-50">
-    {% for message in chat %}
-        {% if current_user.id == message[1] %}
-            <p align="right" style="margin-right: 15px;">{{ message[2] }}</p>
-        {% else %}
-            <p align="left" style="margin-left: 15px;">{{ message[2] }}</p>
-        {% endif %}
-    {% endfor %}
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function() {
+
+	var socket = io.connect('http://127.0.0.1:5000');
+
+	socket.on('connect', function() {
+		socket.send('User has connected!');
+	});
+
+	socket.on('message', function(msg) {
+		$("#messages").append('<li>'+msg+'</li>');
+		console.log('Received message');
+	});
+
+	$('#sendbutton').on('click', function() {
+		socket.send($('#myMessage').val());
+		$('#myMessage').val('');
+	});
+
+});
+
+</script>
+<div style="overflow-y: scroll; background-color: lightgrey;" class="h-50">
+    <ul id="messages">
+    </ul>
 </div>
-<form action="" method="post">
-    <p style="display: flex;">{{ form.message(class="form-control w-85") }}{{ form.send(type="submit", class="btn btn-primary") }}</p>
-</form>
+<p style="display: flex">
+    <input type="text" id="myMessage" class="form-control">
+    <button id="sendbutton" class="btn btn-info">Send</button>
+</p>
 {% endblock %}

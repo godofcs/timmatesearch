@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block head %}
-    <link rel="stylesheet" href="../../static/css/style.css">
+<link rel="stylesheet" href="../../static/css/style.css">
 {% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
-        <form action="" method="post">
-            {{ form.hidden_tag() }}
-            {{ form.csrf_token }}
-            <p>
-                {{ form.answer.label(style="font-size: 20px;") }}<br>
-                {{ form.answer(class="form-control", style="width: 98%; padding-bottom: 400px;
-                padding-top: 20px;", type="string") }}<br>
-                {% for error in form.answer.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                {% endfor %}
-            </p>
-            <p>{{ form.submit(type="submit", style="font-family: FF Trixie;",
-                class="btn btn-primary") }}</p>
-            {{message}}
-        </form>
-    {% else %}
-        <div>Для ответа на вопрос, вы должны зарегистрироваться!</div>
-    {% endif %}
+{% if current_user.is_authenticated %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    <p>
+        {{ form.answer.label(style="font-size: 20px;") }}<br>
+        {{ form.answer(class="form-control", style="width: 98%; padding-bottom: 400px;
+        padding-top: 20px;", type="string") }}<br>
+        {% for error in form.answer.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", style="font-family: FF Trixie;",
+        class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+{% else %}
+<div>Для ответа на вопрос, вы должны зарегистрироваться!</div>
+{% endif %}
 {% endblock %}

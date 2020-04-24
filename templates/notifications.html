@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/style.css">
+{% endblock %}
+
+{% block content %}
+{% for item in notifications %}
+    {% if item[1] == 0 %}
+        <p>A user with a nickname {{ item[0].name }} sent you a friend request</p>
+        <a class="btn btn-warning" href="/add_to_friend/{{ item[2] }}/{{ item[0].id }}" style="font-size: 16pt;">Add to friend</a>
+<a class="btn btn-warning" href="/clean_notifications/{{ current_user.id }}/{{ item[0].id }}/{{ item[1] }}/{{ item[2] }}" style="font-size: 16pt;">Not add to friend</a>
+    {% elif item[1] == 1 %}
+        <p>Have you played with a user with the nickname: {{ item[0].name }}</p>
+        <a class="btn btn-warning" href="/edit_reputation/{{ current_user.id }}/{{ item[2] }}/{{ item[0].id }}" style="font-size: 16pt;">YES</a>
+        <a class="btn btn-warning" href="/clean_notifications/{{ current_user.id }}/{{ item[0].id }}/{{ item[1] }}/{{ item[2] }}" style="font-size: 16pt;">NO</a>
+    {% endif %}
+{% endfor %}
+<a style="font: 18pt;">{{ message }}</a>
+{% endblock %}

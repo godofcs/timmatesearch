@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block head %}
-    <link rel="stylesheet" href="../../static/css/style.css">
+<link rel="stylesheet" href="../../static/css/style.css">
 {% endblock %}
 
 {% block content %}
-    <p style="font-size: 30px; font-family: FF Trixie;">Q u e s t i o n :</p>
-    <div style="margin-top: 38px; background-color: #f5f5f5;
+<p style="font-size: 30px; font-family: FF Trixie;">Q u e s t i o n :</p>
+<div style="margin-top: 38px; background-color: #f5f5f5;
      margin-right: 25px; padding-left: 50px; padding-top: 40px; padding-bottom: 40px;"
-         class="col-md6 border rounded">
-        <h4>{{title}}</h4>
-        <h6>{{question}}</h6>
-    </div>
-    <a href="/forum/answere_on_question/{{num_id}}"
-       style="margin-top: 30px; font-family: FF Trixie;" class="btn btn-{{colors}}">R e p l y</a>
-    <p style="font-size: 30px; font-family: FF Trixie; margin-top: 4%;">A n s w e r s :</p>
-    {% for i in range(0, count) %}
-        <div style="margin-top: 38px; background-color: #f5f5f5;
+     class="col-md6 border rounded">
+    <h4>{{title}}</h4>
+    <h6>{{question}}</h6>
+</div>
+<a href="/forum/answere_on_question/{{num_id}}"
+   style="margin-top: 30px; font-family: FF Trixie;" class="btn btn-{{colors}}">R e p l y</a>
+<p style="font-size: 30px; font-family: FF Trixie; margin-top: 4%;">A n s w e r s :</p>
+{% for i in range(0, count) %}
+<div style="margin-top: 38px; background-color: #f5f5f5;
          margin-right: 25px; padding-left: 50px; padding-top: 40px; padding-bottom: 40px;"
-             class="col-md6 border rounded">
-        <h5>{{user_name[i]}}:</h5><br>
-        <h6>{{answers[i]}}</h6>
-        </div>
-    {% endfor %}
-    {% if count == 0 %}
-        <div>На данный вопрос никто не ответил ):</div>
-    {% endif %}
+     class="col-md6 border rounded">
+    <h5>{{user_name[i]}}:</h5><br>
+    <h6>{{answers[i]}}</h6>
+</div>
+{% endfor %}
+{% if count == 0 %}
+<div>На данный вопрос никто не ответил ):</div>
+{% endif %}
 {% endblock %}
