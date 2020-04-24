@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <a href="/forum/ask_question" class="btn btn-{{colors}}"
+       style="margin-top: 9px;">Ask a question</a>
+    {% for item in forum_questions %}
+        <a href="/forum/question/1" style="text-decoration: none; color: black;">
+            <div style="margin-top: 38px; background-color: #f5f5f5;
+         margin-right: 25px; padding-left: 50px; padding-top: 40px; padding-bottom: 40px;"
+             class="col-md6 border rounded">
+            <h4>{{item.title}}</h4>
+            <h6>{{item.question}}</h6>
+        </div></a>
+    {% endfor %}
+{% endblock %}
