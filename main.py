@@ -5,9 +5,10 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
 from data import db_session, users, login_class, registration, redefine_roles, news, \
-    translater, forum_db, forum, answer_on_question, ask_question, settings, settings_db,\
-    chatsform, edit_profile_form
+    translater, forum_db, forum, answer_on_question, ask_question, settings, settings_db, \
+    chatsform, edit_profile_form, api_func
 from random import choice
+from flask_restful import reqparse, abort, Api, Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, send
 import feedparser, pprint, json, os, datetime
@@ -16,6 +17,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'matesearch_secretkey'
 socketio = SocketIO(app)
 login_manager = LoginManager()
+api = Api(app)
 login_manager.init_app(app)
 
 
@@ -23,6 +25,19 @@ login_manager.init_app(app)
 def load_user(user_id):
     sessions = db_session.create_session()
     return sessions.query(users.User).get(user_id)
+
+
+@app.errorhandler(404)  # функция ошибки
+def not_found(error):
+    try:
+        sessions = db_session.create_session()
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    colors = choice(["primary", "success", "danger", "info"])
+    return render_template("not_found.html", colors=colors, main_color=main_color)
 
 
 @app.route("/")
@@ -371,7 +386,7 @@ def user_info(id):
             url = url2
         print(str(current_user.id) not in user.appraisers, 1)
         if (url != "" and str(current_user.id) not in user.appraisers and
-            str(current_user.id) + ";1" not in user.notifications):
+                str(current_user.id) + ";1" not in user.notifications):
             print(chats[url][0][0])
             time1 = (chats[url][0][0] * 365 + chats[url][0][1] * 30 + chats[url][0][2]) * \
                     3600 * 24 + chats[url][0][3] * 3600 + chats[url][0][4] * 60 + chats[url][0][5]
@@ -382,7 +397,7 @@ def user_info(id):
             if time2 - time1 > 3600:
                 ocenka_reputacii = True
         if (str(current_user.id) + ";0;" + str(user.id) not in user.notifications and
-            str(current_user.id) not in user.friends):
+                str(current_user.id) not in user.friends):
             dobavlenie_v_druzya = True
         try:
             settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -402,7 +417,7 @@ def edit_reputation(id, znach, second_id):
     user = sessions.query(users.User).get(id)
     if current_user.id != id:
         if (str(current_user.id) not in user.appraisers and
-            f"_[{second_id};1;{znach}]" not in user.notifications):
+                f"_[{second_id};1;{znach}]" not in user.notifications):
             user.notifications = user.notifications + f"_[{second_id};1;{znach}]"
             sessions.merge(user)
             sessions.commit()
@@ -425,7 +440,7 @@ def add_to_friend(first_id, second_id):
     if first_id != current_user.id:
         user = sessions.query(users.User).get(first_id)
         if (str(current_user.id) not in user.friends.split("_") and
-            f"_[{second_id};0;{first_id}]" not in user.notifications):
+                f"_[{second_id};0;{first_id}]" not in user.notifications):
             user.notifications = user.notifications + f"_[{second_id};0;{first_id}]"
             sessions.merge(user)
             sessions.commit()
@@ -609,22 +624,9 @@ def forum_full_question(num_id):
 
 @app.route("/forum/answere_on_question/<int:num_id>", methods=["GET", "POST"])
 def answer_on_question_func(num_id):
+    form = answer_on_question.Answer_on_question()
     if request.method == 'GET':
-        form = answer_on_question.Answer_on_question()
         colors = choice(["primary", "success", "danger", "info"])
-        if form.validate_on_submit():
-            sessions = db_session.create_session()
-            answer = form.answer.data
-            answer_db = sessions.query(forum_db.Forum).filter(
-                forum_db.Forum.id == num_id).first()
-            first_answer = str(answer_db.answers) + "/end/new_answer/"
-            first_author = str(answer_db.user_id) + "/end/new_author/"
-            user_id_db = sessions.query(forum_db.Forum).filter(
-                forum_db.Forum.id == num_id).first()
-            id_user = current_user.id
-            user_id_db.user_id = str(first_author) + str(id_user)
-            answer_db.answers = str(first_answer) + str(answer)
-            sessions.commit()
         sessions = db_session.create_session()
         try:
             settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -635,7 +637,22 @@ def answer_on_question_func(num_id):
         return render_template("answer_on_question.html", colors=colors, num_id=num_id, form=form,
                                main_color=main_color)
     elif request.method == 'POST':
-        return redirect("/forum/question/1")
+        sessions = db_session.create_session()
+        answer = form.answer.data
+        if "/end/new_answer/" in answer:
+            correct_answer = answer.split('/end/new_answer/')
+            answer = ''.join(correct_answer)
+        answer_db = sessions.query(forum_db.Forum).filter(
+            forum_db.Forum.id == num_id).first()
+        first_answer = str(answer_db.answers) + "/end/new_answer/"
+        first_author = str(answer_db.user_id) + "/end/new_author/"
+        user_id_db = sessions.query(forum_db.Forum).filter(
+            forum_db.Forum.id == num_id).first()
+        id_user = current_user.id
+        user_id_db.user_id = str(first_author) + str(id_user)
+        answer_db.answers = str(first_answer) + str(answer)
+        sessions.commit()
+        return redirect("/forum")
 
 
 @app.route("/forum/ask_question", methods=["GET", "POST"])
@@ -693,8 +710,36 @@ def site_settings():
     return render_template("settings.html", colors=colors, form=form, main_color=main_color)
 
 
+@app.route('/question_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    sessions = db_session.create_session()
+    new = sessions.query(forum_db.Forum).filter(forum_db.Forum.id == id).first()
+    if new:
+        sessions.delete(new)
+        sessions.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route("/api")
+def api_page():
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        sessions = db_session.create_session()
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template("api_page.html", colors=colors, main_color=main_color)
+
+
 def main():
     db_session.global_init("db/news.db")
+    api.add_resource(api_func.NewsListResource, '/api/forum')
+    api.add_resource(api_func.NewsResource, '/api/forum/<int:news_id>')
     socketio.run(app)
 
 

@@ -11,7 +11,7 @@
     <title>MateSearch</title>
     {% block head %}{% endblock %}
 </head>
-<body>
+<body style="background-color: {{main_color}}">
 <div style="margin-right: 5%; margin-left: 5%;">
     <nav style="padding-bottom: 70px; border-radius: 10px;"
          class="navbar navbar-light bg-{{colors}}">
@@ -54,15 +54,14 @@
             bg-{{colors}}">Paladins</a>
             <a style="font-size: 20px; color: white;" href="/searchmates/fortnite" class="btn btn-{{colors}}
             bg-{{colors}}">Fortnite</a>
-            <a style="font-size: 20px;" class="btn btn-{{colors}} bg-{{colors}}
-            bg-light">Forum</a>
             <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
-            bg-light" href="/cyberclubs">CyberClubs</a>
+            bg-light" href="/forum">Forum</a>
             {% if current_user.role == "admin" %}
                 <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
             bg-light">Redefine roles</a>
             {% endif %}
-            <a style="font-size: 20px;" class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
+            <a style="font-size: 20px; color: black;" href="/api"
+               class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
             <a style="font-size: 20px; color: black;" href="/settings" class="btn btn-{{colors}}
             bg-light">Settings</a>
         </div>
