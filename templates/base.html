@@ -44,8 +44,8 @@
             bg-{{colors}}">CS:GO</a>
             <a style="font-size: 20px; color: white;" href="/searchmates/dota2" class="btn btn-{{colors}}
             bg-{{colors}}">Dota 2</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/trove" class="btn btn-{{colors}}
-            bg-{{colors}}">Trove</a>
+            <a style="font-size: 20px; color: white;" href="/searchmates/minecraft" class="btn btn-{{colors}}
+            bg-{{colors}}">Minecraft</a>
             <a style="font-size: 20px; color: white;" href="/searchmates/gta_online" class="btn btn-{{colors}}
             bg-{{colors}}">GTA online</a>
             <a style="font-size: 20px; color: white;" href="/searchmates/pubg" class="btn btn-{{colors}}
@@ -56,6 +56,10 @@
             bg-{{colors}}">Fortnite</a>
             <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
             bg-light" href="/forum">Forum</a>
+            {% if current_user.is_authenticated %}
+            <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+            bg-light" href="/chat">Chat</a>
+            {% endif %}
             {% if current_user.role == "admin" %}
                 <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
             bg-light">Redefine roles</a>

@@ -223,18 +223,21 @@ def add_to_search(game, types):
 
 @socketio.on("message")
 def Message(message):
-    print(message.encode("utf-8").decode("utf-8"))
-    for i in message:
-        print(ord(i), end=" ")
-    print()
-    for i in "Привет":
-        print(ord(i), end=" ")
-    print()
+    print(message)
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    time = datetime.datetime.now()
+    message, url = map(str, message.split("_<}]:;,.!$?$?!.,;:[{>_"))
+    data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
+                             time.second), current_user.id, message]]
+    with open("static/json/chaty.json", "w") as file:
+        json.dump(data, file)
     send(message, broadcast=True)
 
 
 @app.route("/chats/<int:first_id>/<int:second_id>", methods=["GET", "POST"])
-def chat(first_id, second_id):
+@login_required
+def chats(first_id, second_id):
     check_last_page()
     # chats: {
     #   url:
@@ -243,6 +246,8 @@ def chat(first_id, second_id):
     #       ]
     # }
     print(1)
+    if current_user.id != first_id and current_user.id != second_id:
+        return "You cann't wathing this chat"
     first_url = str(first_id) + "_" + str(second_id)
     second_url = str(second_id) + "_" + str(first_id)
     url = ""
@@ -262,31 +267,34 @@ def chat(first_id, second_id):
             json.dump(data, file)
         with open("static/json/chaty.json") as file:
             data = json.load(file)
-    form = chatsform.ChatsForm()
-    if request.method == "POST":
-        with open("static/json/chaty.json") as file:
-            data = json.load(file)
-        time = datetime.datetime.now()
-        message = form.message.data.split()
-        new_message = []
-        for i in range(len(message)):
-            if len(message[i]) > 25:
-                for j in range(0, len(message[i]), 25):
-                    new_message += [message[i][j:j + 25]]
-            else:
-                new_message += [message[i]]
-        new_message = " ".join(new_message)
-        data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
-                                 time.second), current_user.id, new_message]]
-        with open("static/json/chaty.json", "w") as file:
-            json.dump(data, file)
-        form.message.data = ""
-    else:
-        print(form.message.data)
     print(1)
     chat = data["chats"][url]
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("chats.html", colors=colors, chat=chat, form=form, url=url)
+    return render_template("chats.html", colors=colors, chat=chat, url=url)
+
+
+@app.route("/chat")
+@login_required
+def chat():
+    sessions = db_session.create_session()
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    chat_list = []
+    for key in data["chats"].keys():
+        if str(current_user.id) in key:
+            id_list = key.split("_")
+            del id_list[id_list.index(str(current_user.id))]
+            user = sessions.query(users.User).get(id_list[0])
+            chat_list += [user]
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template("chat_list.html", colors=colors, main_color=main_color,
+                           chat_list=chat_list)
 
 
 def check_last_page():

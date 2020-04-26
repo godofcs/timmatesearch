@@ -17,6 +17,7 @@
 $(document).ready(function() {
 
 	var socket = io.connect('http://127.0.0.1:5000');
+	var url = $('#url').attr("data-place")
 
 	socket.on('connect', function() {
 		socket.send('User has connected!');
@@ -28,7 +29,7 @@ $(document).ready(function() {
 	});
 
 	$('#sendbutton').on('click', function() {
-		socket.send($('#myMessage').val());
+		socket.send($('#myMessage').val() + "_<}]:;,.!$?$?!.,;:[{>_" + url);
 		$('#myMessage').val('');
 	});
 
@@ -43,4 +44,5 @@ $(document).ready(function() {
     <input type="text" id="myMessage" class="form-control">
     <button id="sendbutton" class="btn btn-info">Send</button>
 </p>
+<div data-place="{{ url }}" id="url"></div>
 {% endblock %}
