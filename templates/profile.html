@@ -16,6 +16,7 @@
         Reputation: {{ user.reputation }}<br>
         {% if current_user.id == user.id %}
         <a class="btn btn-warning" href="/edit_profile" style="font-size: 16pt;">Edit profile</a>
+        <a class="btn btn-danger" href="/logout" style="font-size: 16pt;">Exit</a>
         {% else %}
         {% if ocenka_reputacii %}
         <a class="btn btn-success" href="/edit_reputation/{{ user.id }}/0/{{ current_user.id }}" style="font-size: 16pt;">

@@ -23,7 +23,7 @@
     <div class="row" style="margin-right: 10px;">
         <a id="loginOrRegistration" class="navbar-brand text-{{colors}}"
            style="padding-left: 18px; padding-right: 18px; margin-left: auto;"
-           href="/logout">{{current_user.name}}</a><a href="/notifications"
+           href="/profile/{{ current_user.id }}">{{current_user.name}}</a><a href="/notifications"
                                                       class="row"
                                                       style="margin-top: 5px; margin-right: 5px; margin-left: 5px;">
         <span>&#x1F514;</span></a></div>

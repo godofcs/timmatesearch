@@ -88,16 +88,22 @@ def new_page(num):
                            main_color=main_color)
 
 
-@app.route('/logout')
+@app.route('/logout', methods=["GET", "POST"])
 def logout():
-    logout_user()
     with open("static/json/chaty.json") as file:
         data = json.load(file)
     for key in data["chats"].keys():
         if str(current_user.id) in key:
             count = 0
-            for i in range(len(data["chats"][key])):
-                if current_user.id == data["chats"][key][i - count][1]:
+            chats = data["chats"]
+            for i in range(1, len(data["chats"][key])):
+                time1 = (chats[key][i - count][0][0] * 365 + chats[key][i - count][0][1] * 30 +
+                         chats[key][i - count][0][2]) * 3600 * 24 + chats[key][i - count][0][3] * \
+                        3600 + chats[key][i - count][0][4] * 60 + chats[key][i - count][0][5]
+                time = datetime.datetime.now()
+                time2 = (time.year * 365 + time.month * 30 + time.day) * 3600 * 24 + time.hour * \
+                        3600 + time.minute * 60 + time.second
+                if time2 - time1 > 3600 * 24:
                     del data["chats"][key][i - count]
                     count += 1
     with open("static/json/chaty.json", "w") as file:
@@ -150,6 +156,10 @@ def reqister():
             return render_template('register.html', title='Регистрация',
                                    form=form, main_color=main_color,
                                    message="This user already exists")
+        if len(form.name.data) > 16 or len(form.name.data) < 3:
+            return render_template('register.html', title='Регистрация',
+                                   form=form, main_color=main_color,
+                                   message="This login too long")
         user = users.User(name=form.name.data,
                           email=form.email.data,
                           password=form.password.data,
@@ -227,12 +237,12 @@ def Message(message):
     with open("static/json/chaty.json") as file:
         data = json.load(file)
     time = datetime.datetime.now()
-    message, url = map(str, message.split("_<}]:;,.!$?$?!.,;:[{>_"))
+    message, url = map(str, message.split("4a96a813f286fb923b0b4ead19e0052c3ddc1c36"))
     data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
-                             time.second), current_user.id, message]]
+                             time.second), current_user.name, message]]
     with open("static/json/chaty.json", "w") as file:
         json.dump(data, file)
-    send(message, broadcast=True)
+    send(message + "_<}]:;,.!$?$228?!.,;:[{>_" + current_user.name, broadcast=True)
 
 
 @app.route("/chats/<int:first_id>/<int:second_id>", methods=["GET", "POST"])
@@ -245,7 +255,6 @@ def chats(first_id, second_id):
     #           ["data", "user", "text"]
     #       ]
     # }
-    print(1)
     if current_user.id != first_id and current_user.id != second_id:
         return "You cann't wathing this chat"
     first_url = str(first_id) + "_" + str(second_id)
@@ -268,9 +277,16 @@ def chats(first_id, second_id):
         with open("static/json/chaty.json") as file:
             data = json.load(file)
     print(1)
-    chat = data["chats"][url]
+    chat = data["chats"][url][1:]
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("chats.html", colors=colors, chat=chat, url=url)
+    sessions = db_session.create_session()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+    except AttributeError:
+        main_color = "white"
+    return render_template("chats.html", colors=colors, chat=chat, url=url, main_color=main_color)
 
 
 @app.route("/chat")
@@ -327,6 +343,7 @@ def news_theft():
         if not coincidence:
             new_new = news.News(
                 title=translater.translate(title),
+                rus_title=title,
                 rus_content=content,
                 content=translater.translate(content)
             )
@@ -468,6 +485,7 @@ def add_to_friend(first_id, second_id):
 @login_required
 def edit_profile():
     check_last_page()
+    colors = choice(["primary", "success", "danger", "info"])
     form = edit_profile_form.EditProfileForm()
     message = "If you want to change your password enter your old password"
     if request.method == "POST":
@@ -476,10 +494,16 @@ def edit_profile():
         if form.old_password.data != "" and form.new_password.data != "":
             if not current_user.check_password(form.old_password.data):
                 message = "Invalid old password"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             elif form.new_password.data != form.new_password_again:
                 message = "The new password is incorrectly repeated"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             elif form.old_password.data == form.new_password.data:
                 message = "The new password matches the old one"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             else:
                 current_user.set_password(form.new_password.data)
         print(request.files["file"])
@@ -491,6 +515,10 @@ def edit_profile():
             current_user.avatar = "/" + name
         current_user.favorite_games = form.favorite_games.data
         if form.name.data != "":
+            if len(form.name.data) > 16 or len(form.name.data) < 3:
+                message = "This login too long"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             current_user.name = form.name.data
         session.merge(current_user)
         session.commit()
@@ -498,7 +526,6 @@ def edit_profile():
     form.avatar.data = current_user.avatar
     form.favorite_games.data = current_user.favorite_games
     form.name.data = current_user.name
-    colors = choice(["primary", "success", "danger", "info"])
     return render_template("edit_profile.html", colors=colors, form=form, message=message)
 
 

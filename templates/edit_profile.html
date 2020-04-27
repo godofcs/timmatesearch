@@ -44,7 +44,9 @@
     </p>
     {% endfor %}
     </p>
-    <p>{{ message }}</p>
+    {% if message != "" %}
+    <p class="alert alert-danger">{{ message }}</p>
+    {% endif %}
     <p>
         {{ form.favorite_games.label }}<br>
         {{ form.favorite_games(class="form-control") }}<br>

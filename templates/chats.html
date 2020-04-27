@@ -18,27 +18,32 @@ $(document).ready(function() {
 
 	var socket = io.connect('http://127.0.0.1:5000');
 	var url = $('#url').attr("data-place")
-
-	socket.on('connect', function() {
-		socket.send('User has connected!');
-	});
+	var block = document.getElementById("chat_area");
 
 	socket.on('message', function(msg) {
-		$("#messages").append('<li>'+msg+'</li>');
+	    var mess = msg.split("_<}]:;,.!$?$228?!.,;:[{>_")
+		$("#messages").append('<tr><td><a>'+mess[1]+'<br></a><a style="font-size: 16pt;">'+mess[0]+'</a></td></tr>');
 		console.log('Received message');
+		block.scrollTop = block.scrollHeight;
 	});
 
 	$('#sendbutton').on('click', function() {
-		socket.send($('#myMessage').val() + "_<}]:;,.!$?$?!.,;:[{>_" + url);
+		socket.send($('#myMessage').val() + "4a96a813f286fb923b0b4ead19e0052c3ddc1c36" + url);
 		$('#myMessage').val('');
 	});
 
 });
 
 </script>
-<div style="overflow-y: scroll; background-color: lightgrey;" class="h-50">
-    <ul id="messages">
-    </ul>
+<div style="overflow-y: scroll; background-color: lightgrey; max-height: 895px; margin-top: 8px"
+     class="h-50" id="chat_area">
+    <table id="messages">
+        {% for message in chat %}
+        <tr>
+            <td><a>{{ message[1] }}<br></a><a style="font-size: 16pt;">{{ message[2] }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 <p style="display: flex">
     <input type="text" id="myMessage" class="form-control">
