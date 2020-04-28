@@ -10,21 +10,41 @@
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
     <p>
-        {{ form.title.label(style="font-size: 20px;") }}<br>
+        {% if main_lang == "en" %}
+            {{ form.title.label(style="font-size: 20px;") }}<br>
+        {% else %}
+            <p style="font-size: 20px;">Н а з в а н и е:</p>
+        {% endif %}
         {{ form.title(class="form-control", style="width: 54%;", type="string") }}<br>
     </p>
     <p>
-        {{ form.question.label(style="font-size: 20px;") }}<br>
+        {% if main_lang == "en" %}
+            {{ form.question.label(style="font-size: 20px;") }}<br>
+        {% else %}
+            <p style="font-size: 20px;">В о п р о с:</p>
+        {% endif %}
         {{ form.question(class="form-control", style="width: 54%;", type="string") }}<br>
     </p>
     <p>
-        {{ form.theme.label(style="font-size: 20px;") }}<br>
+        {% if main_lang == "en" %}
+            {{ form.theme.label(style="font-size: 20px;") }}<br>
+        {% else %}
+            <p style="font-size: 20px;">Т е м а:</p>
+        {% endif %}
         {{ form.theme(class="form-control", style="width: 54%;",
         type="string") }}<br>
     </p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if main_lang == "en" %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% else %}
+        <p>{{ form.submit_rus(type="submit", class="btn btn-primary") }}</p>
+    {% endif %}
 </form>
 {% else %}
-<div>Зарегистрируйтесь, для того чтобы получить доступ к этой странице!</div>
+{% if main_lang == "en" %}
+    <div>Register to access this page!</div>
+{% else %}
+    <div>Зарегистрируйтесь, для того чтобы получить доступ к этой странице!</div>
+{% endif %}
 {% endif %}
 {% endblock %}

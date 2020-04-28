@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask_restful import reqparse, abort, Api, Resource
 from data import db_session, users, login_class, registration, redefine_roles, news, \
-    translater, chatsform, settings_db, forum_db, settings_db, settings, forum, \
+    translater, chatsform, settings_db, forum_db, settings_db, settings, \
     answer_on_question, ask_question
 
 

@@ -1,1 +1,1 @@
-{"CS:GO": {"match_making": [], "workmates": []}, "Dota2": {"rating_game": [], "turbo": []}, "Trove": [], "GTA_Online": [], "PUBG": {"duo": [], "squad": [], "one_man_squad": []}, "Paladins": {"siege": [], "onslaught": [], "team_fight_to_the_death": []}}
+{"CS:GO": {"match_making": [], "workmates": [2]}, "dota2": {"rating_game": [], "turbo": []}, "minecraft": {"survival": [], "creative": []}, "GTA_Online": {"grand_theft_auto_online": []}, "PUBG": {"duo": [], "squad": [], "one_man_squad": []}, "paladins": {"siege": [], "onslaught": []}, "Fortnite": {"battle_royale": []}}

@@ -6,7 +6,11 @@
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
         <p>
-            {{ form.user_id.label(style="font-size: 20px;") }}<br>
+            {% if main_lang == "en" %}
+                {{ form.user_id.label(style="font-size: 20px;") }}<br>
+            {% else %}
+                <p style="font-size: 20px;">Укажите id пользователя</p>
+            {% endif %}
             {{ form.user_id(class="form-control", style="width: 54%;", type="string") }}<br>
             {% for error in form.user_id.errors %}
                 <p class="alert alert-danger" role="alert">
@@ -14,15 +18,24 @@
                 </p>
             {% endfor %}
         </p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        {% if main_lang == "en" %}
+            <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        {% else %}
+            <p>{{ form.submit_rus(type="submit", class="btn btn-primary") }}</p>
+        {% endif %}
         {{message}}
         {% if user_name != "" and user_role != "" %}
             <p style="margin-left: 20px; margin-top: 40px; font-size: 30px; display: flex;">
                 {{ user_name }}
                 {{ form.input_user_role(class="form-control", style="margin-left: 30px; width: 40%;
                 text-align: center;", value=user_role, type="string") }}
-                <p>{{ form.save(type="submit", style="margin-top: 30px;",
-        class="btn btn-primary") }}</p>
+                {% if main_lang == "en" %}
+                    <p>{{ form.save(type="submit", style="margin-top: 30px;",
+            class="btn btn-primary") }}</p>
+                {% else %}
+                <p>{{ form.save_rus(type="submit", style="margin-top: 30px;",
+                    class="btn btn-primary") }}</p>
+                {% endif %}
             </p>
         {% endif %}
     </form>

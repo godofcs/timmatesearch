@@ -13,17 +13,27 @@
         <div style="margin-top: 38px; background-color: #f5f5f5; margin-right: 40px; padding-left: 50px;
                  padding-top: 40px; padding-bottom: 40px;"
              class="col-md6 border rounded">
-            <h4>{{item.title}}</h4>
-            <h6>{{item.content}}</h6>
+            {% if main_lang == "en" %}
+                <h4>{{item.title}}</h4>
+                <h6>{{item.content}}</h6>
+            {% else %}
+                <h4>{{item.rus_title}}</h4>
+                <h6>{{item.rus_content}}</h6>
+            {% endif %}
         </div>
     {% endif %}
 {% endfor %}
 <div style="display: flex;">
     <p style="margin-left: 30%;"><a style="margin-top: 40px; margin-bottom: 40px;"
-                                    href="/page/{{back_page}}" class="btn btn-{{colors}}">
-        Previous page</a></p>
+                                        href="/page/{{back_page}}" class="btn btn-{{colors}}">
+            Previous page</a></p>
     <p style="margin-left: 20%;"><a style="margin-top: 40px; margin-bottom: 40px;"
                                     href="/page/{{next_page}}" class="btn btn-{{colors}}">
         Next page</a></p>
 </div>
+{% if main_lang == "en" %}
+    <p style="text-align: right; color: grey;">All news was translated by <b>Яндекс.Переводчик</b></p>
+{% else %}
+    <p style="text-align: right; color: grey;">Все новости были переведены <b>Яндекс.Переводчиком</b></p>
+{% endif %}
 {% endblock %}

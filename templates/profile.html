@@ -10,21 +10,32 @@
         <img class="img-fluid rounded-circle" src="{{ user.avatar }}" alt="" height="250"
              width="250" vspace="5"
              hspace="5" align="left" style="margin-right: 20px;">
+        {% if main_lang == "en" %}
         Nik: {{ user.name }}<br>
         Role: {{ user.role }}<br>
         Favorite games: {{ user.favorite_games }}<br>
         Reputation: {{ user.reputation }}<br>
+        {% else %}
+        Ник: {{ user.name }}<br>
+        Роль: {{ user.role }}<br>
+        Любимые игры: {{ user.favorite_games }}<br>
+        Репутация: {{ user.reputation }}<br>
+        {% endif %}
         {% if current_user.id == user.id %}
-        <a class="btn btn-warning" href="/edit_profile" style="font-size: 16pt;">Edit profile</a>
+        <a class="btn btn-warning" href="/edit_profile" style="font-size: 16pt;">{% if main_lang == "en" %}
+            Edit profile{% else %}Изменить профиль{% endif %}</a>
+        <a class="btn btn-danger" href="/logout" style="font-size: 16pt;">{% if main_lang == "en" %}
+            Exit{% else %}Выйти{% endif %}</a>
         {% else %}
         {% if ocenka_reputacii %}
         <a class="btn btn-success" href="/edit_reputation/{{ user.id }}/0/{{ current_user.id }}" style="font-size: 16pt;">
-            Like</a>
+            {% if main_lang == "en" %}Like{% else %}Нравится{% endif %}</a>
         <a class="btn btn-danger" href="/edit_reputation/{{ user.id }}/1/{{ current_user.id }}" style="font-size: 16pt;">
-            Report</a>
+            {% if main_lang == "en" %}Report{% else %}Пожаловаться{% endif %}</a>
         {% endif %}
         {% if dobavlenie_v_druzya %}
-        <a class="btn btn-warning" href="/add_to_friend/{{ user.id }}/{{ current_user.id }}" style="font-size: 16pt;">Add to friend</a>
+        <a class="btn btn-warning" href="/add_to_friend/{{ user.id }}/{{ current_user.id }}" style="font-size: 16pt;">
+            {% if main_lang == "en" %}Add to friend{% else %}Добавить в друзья{% endif %}</a>
         {% endif %}
         {% endif %}
         <br>

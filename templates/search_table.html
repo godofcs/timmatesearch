@@ -2,6 +2,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/style.css">
+<meta http-equiv="Refresh" content="15" />
 <script type="text/javascript"
         src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"
         charset="utf-8"></script>
@@ -17,6 +18,19 @@
 {% endblock %}
 
 {% block content %}
+{% if main_lang == "ru" %}
+    <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
+        <a style="margin-right: 40px;" class="btn btn-primary"
+           href="/searchmates/{{ name_game }}/{{ type_game }}">Доска</a>
+        <a class="btn btn-success" href="/chats_in_search">Чаты</a>
+    </div>
+{% else %}
+    <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
+        <a style="margin-right: 40px;" class="btn btn-primary"
+           href="/searchmates/{{ name_game }}/{{ type_game }}">Desk</a>
+        <a class="btn btn-success" href="/chats_in_search">Chats</a>
+    </div>
+{% endif %}
 <script type="text/javascript">
 $(document).ready(function() {
 
@@ -38,13 +52,20 @@ $(document).ready(function() {
 <table class="table">
     <thead>
     <tr style="font-size: 18pt;">
-        <th scope="col">Number</th>
-        <th scope="col">Name</th>
-        <th scope="col">Reputation</th>
+        {% if main_lang == "en" %}
+            <th scope="col">Number</th>
+            <th scope="col">Name</th>
+            <th scope="col">Reputation</th>
+        {% else %}
+            <th scope="col">Номер</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Репутация</th>
+        {% endif %}
     </tr>
     </thead>
     <tbody>
     {% for mate in mates %}
+    {% if mates[loop.index0][3] != current_user.id %}
     <tr style="font-size: 18pt;">
         <th scope="col">{{ loop.index }}</th>
         <td>
@@ -75,12 +96,15 @@ $(document).ready(function() {
             {% endif %}
             <div id="okno{{ loop.index0 }}"
                  style="width: 300px; height: 50px; text-align: center; padding: 15px; color: #0000cc; display: none;">
-                <a href="/profile/{{mates[loop.index0][3]}}" class="btn btn-success">View
-                    profile</a><a href="/chats/{{current_user.id}}/{{mates[loop.index0][3]}}"
-                                  class="btn btn-warning">Start a chat</a>
+                <a href="/profile/{{mates[loop.index0][3]}}" class="btn btn-success">
+                    {% if main_lang == "en" %}View profile{% else %}Посмотреть профиль{% endif %}
+                </a><a href="/chats/{{current_user.id}}/{{mates[loop.index0][3]}}"
+                                  class="btn btn-warning">{% if main_lang == "en" %}
+                Start a chat{% else %}Перейти к чату{% endif %}</a>
             </div>
         </td>
     </tr>
+    {% endif %}
     {% endfor %}
     </tbody>
 </table>

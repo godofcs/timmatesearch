@@ -23,9 +23,11 @@
     <div class="row" style="margin-right: 10px;">
         <a id="loginOrRegistration" class="navbar-brand text-{{colors}}"
            style="padding-left: 18px; padding-right: 18px; margin-left: auto;"
-           href="/logout">{{current_user.name}}</a><a href="/notifications"
+           href="/profile/{{ current_user.id }}">{{current_user.name}}</a><a href="/notifications"
                                                       class="row"
-                                                      style="margin-top: 5px; margin-right: 5px; margin-left: 5px;">
+                                                      style="margin-top: 5px;
+                                                      margin-right: 5px;
+                                                      margin-left: 5px; text-decoration: none;">
         <span>&#x1F514;</span></a></div>
 
     {% else %}
@@ -40,30 +42,57 @@
 <div style="display: flex;">
     <div style="margin-left: 4%;">
         <div class="btn btn-group-vertical">
-            <a style="font-size: 20px; color: white;" href="/searchmates/csgo" class="btn btn-{{colors}}
-            bg-{{colors}}">CS:GO</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/dota2" class="btn btn-{{colors}}
-            bg-{{colors}}">Dota 2</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/trove" class="btn btn-{{colors}}
-            bg-{{colors}}">Trove</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/gta_online" class="btn btn-{{colors}}
-            bg-{{colors}}">GTA online</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/pubg" class="btn btn-{{colors}}
-            bg-{{colors}}">PUBG</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/paladins" class="btn btn-{{colors}}
-            bg-{{colors}}">Paladins</a>
-            <a style="font-size: 20px; color: white;" href="/searchmates/fortnite" class="btn btn-{{colors}}
-            bg-{{colors}}">Fortnite</a>
-            <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
-            bg-light" href="/forum">Forum</a>
-            {% if current_user.role == "admin" %}
-                <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
-            bg-light">Redefine roles</a>
+            {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: white;" href="/searchmates/csgo" class="btn btn-{{colors}}
+                bg-{{colors}}">CS:GO</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/dota2" class="btn btn-{{colors}}
+                bg-{{colors}}">Dota 2</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/minecraft" class="btn btn-{{colors}}
+                bg-{{colors}}">Minecraft</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/gta_online" class="btn btn-{{colors}}
+                bg-{{colors}}">GTA online</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/pubg" class="btn btn-{{colors}}
+                bg-{{colors}}">PUBG</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/paladins" class="btn btn-{{colors}}
+                bg-{{colors}}">Paladins</a>
+                <a style="font-size: 20px; color: white;" href="/searchmates/fortnite" class="btn btn-{{colors}}
+                bg-{{colors}}">Fortnite</a>
             {% endif %}
-            <a style="font-size: 20px; color: black;" href="/api"
-               class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
-            <a style="font-size: 20px; color: black;" href="/settings" class="btn btn-{{colors}}
-            bg-light">Settings</a>
+            {% if main_lang == "en" %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/forum">Forum</a>
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/chat">Chat</a>
+                {% endif %}
+                {% if current_user.role == "admin" %}
+                    <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
+                bg-light">Redefine roles</a>
+                {% endif %}
+                <a style="font-size: 20px; color: black;" href="/api"
+                   class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" href="/settings" class="btn btn-{{colors}}
+                bg-light">Settings</a>
+                {% endif %}
+            {% else %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/forum">Форум</a>
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/chat">Чат</a>
+                {% endif %}
+                {% if current_user.role == "admin" %}
+                    <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
+                bg-light">Переопределение ролей</a>
+                {% endif %}
+                <a style="font-size: 20px; color: black;" href="/api"
+                   class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" href="/settings" class="btn btn-{{colors}}
+                bg-light">Настройки</a>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
     <main role="main" class="container">

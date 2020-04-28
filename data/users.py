@@ -17,7 +17,7 @@ class User(SqlAlchemyBase, UserMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     reputation = sqlalchemy.Column(sqlalchemy.Integer, default=50)
     avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True,
-                               default="static/img/avatar_img/avatar_1.jpg")
+                               default="/static/img/avatar_img/avatar_1.jpg")
     favorite_games = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     last_page = sqlalchemy.Column(sqlalchemy.String, nullable=True, default="/")
     appraisers = sqlalchemy.Column(sqlalchemy.String, nullable=True, default="_0")

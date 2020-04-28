@@ -1,24 +1,22 @@
-from flask import Flask, render_template, redirect, request, make_response, session, abort
-from flask_wtf import FlaskForm
-from flask_login import LoginManager, login_user, logout_user, current_user, login_manager, \
-    login_required
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired
+from flask import Flask, render_template, redirect, request, abort
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from data import db_session, users, login_class, registration, redefine_roles, news, \
-    translater, forum_db, forum, answer_on_question, ask_question, settings, settings_db, \
-    chatsform, edit_profile_form, api_func
+    translater, forum_db, answer_on_question, ask_question, settings, settings_db, \
+    edit_profile_form, api_func
 from random import choice
-from flask_restful import reqparse, abort, Api, Resource
+import sys
+from flask_restful import abort, Api
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import SocketIO, send
-import feedparser, pprint, json, os, datetime
+import feedparser, json, os, datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'matesearch_secretkey'
+app.config['SECRET_KEY'] = 'matesearch_secretkey'  # Секретный ключ
 socketio = SocketIO(app)
 login_manager = LoginManager()
 api = Api(app)
 login_manager.init_app(app)
+sys.stdout.encoding  # 'UTF-8'
 
 
 @login_manager.user_loader
@@ -34,20 +32,23 @@ def not_found(error):
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("not_found.html", colors=colors, main_color=main_color)
+    return render_template("not_found.html", colors=colors, main_color=main_color,
+                           main_lang=main_lang)
 
 
-@app.route("/")
+@app.route("/")  # Главная страница
 def index():
     news_theft()
     check_last_page()
     counter_1 = 6
     counter_2 = 0
     next_page = 2
-    back_page = 2
+    back_page = 1
     sessions = db_session.create_session()
     news_on_page = sessions.query(news.News).order_by(news.News.created_date.desc())
     colors = choice(["primary", "success", "danger", "info"])
@@ -55,14 +56,16 @@ def index():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
                            counter_2=counter_2, next_page=next_page, back_page=back_page,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
-@app.route("/page/<int:num>")
+@app.route("/page/<int:num>")  # Страницы новостей
 def new_page(num):
     news_theft()
     check_last_page()
@@ -81,23 +84,31 @@ def new_page(num):
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     return render_template("index.html", colors=colors, news=news_on_page, counter_1=counter_1,
                            counter_2=counter_2, next_page=next_page, back_page=back_page,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
-@app.route('/logout')
+@app.route('/logout', methods=["GET", "POST"])  # Выйти из аккаунта
 def logout():
-    logout_user()
     with open("static/json/chaty.json") as file:
         data = json.load(file)
     for key in data["chats"].keys():
         if str(current_user.id) in key:
             count = 0
-            for i in range(len(data["chats"][key])):
-                if current_user.id == data["chats"][key][i - count][1]:
+            chats = data["chats"]
+            for i in range(1, len(data["chats"][key])):
+                time1 = (chats[key][i - count][0][0] * 365 + chats[key][i - count][0][1] * 30 +
+                         chats[key][i - count][0][2]) * 3600 * 24 + chats[key][i - count][0][3] * \
+                        3600 + chats[key][i - count][0][4] * 60 + chats[key][i - count][0][5]
+                time = datetime.datetime.now()
+                time2 = (time.year * 365 + time.month * 30 + time.day) * 3600 * 24 + time.hour * \
+                        3600 + time.minute * 60 + time.second
+                if time2 - time1 > 3600 * 24:
                     del data["chats"][key][i - count]
                     count += 1
     with open("static/json/chaty.json", "w") as file:
@@ -106,7 +117,7 @@ def logout():
     return redirect('/')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])  # Войти в аккаунт
 def login():
     check_last_page()
     form = login_class.LoginForm()
@@ -115,8 +126,10 @@ def login():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     colors = choice(["primary", "success", "danger", "info"])
     if form.validate_on_submit():
         user = sessions.query(users.User).filter(users.User.email == form.email.data).first()
@@ -125,12 +138,12 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect('/')
         return render_template('login.html', message='Invalid username or password', colors=colors,
-                               form=form, main_color=main_color)
+                               form=form, main_color=main_color, main_lang=main_lang)
     return render_template('login.html', title='Авторизация', colors=colors, form=form,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])  # Страница регистрации
 def reqister():
     check_last_page()
     form = registration.RegisterForm()
@@ -139,17 +152,23 @@ def reqister():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация',
                                    form=form, main_color=main_color,
-                                   message="Passwords don't match")
+                                   message="Passwords don't match", main_lang=main_lang)
         if sessions.query(users.User).filter(users.User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form, main_color=main_color,
-                                   message="This user already exists")
+                                   message="This user already exists", main_lang=main_lang)
+        if len(form.name.data) > 16 or len(form.name.data) < 3:
+            return render_template('register.html', title='Регистрация',
+                                   form=form, main_color=main_color,
+                                   message="This login too long", main_lang=main_lang)
         user = users.User(name=form.name.data,
                           email=form.email.data,
                           password=form.password.data,
@@ -165,10 +184,10 @@ def reqister():
         return redirect('/login')
     colors = choice(["primary", "success", "danger", "info"])
     return render_template('register.html', colors=colors, title='Registration', form=form,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
-@app.route("/searchmates/<string:game>/<string:types>")
+@app.route("/searchmates/<string:game>/<string:types>")  # Страница поиска тиммейтов
 @login_required
 def add_to_search(game, types):
     check_last_page()
@@ -215,26 +234,31 @@ def add_to_search(game, types):
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     return render_template("search_table.html", colors=colors, mates=mates,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang, name_game=game,
+                           type_game=types)
 
 
-@socketio.on("message")
+@socketio.on("message")  # Сообщения
 def Message(message):
-    print(message.encode("utf-8").decode("utf-8"))
-    for i in message:
-        print(ord(i), end=" ")
-    print()
-    for i in "Привет":
-        print(ord(i), end=" ")
-    print()
-    send(message, broadcast=True)
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    time = datetime.datetime.now()
+    message, url = map(str, message.split("4a96a813f286fb923b0b4ead19e0052c3ddc1c36"))
+    data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
+                             time.second), current_user.name, message]]
+    with open("static/json/chaty.json", "w") as file:
+        json.dump(data, file)
+    send(message + "_<}]:;,.!$?$228?!.,;:[{>_" + current_user.name, broadcast=True)
 
 
-@app.route("/chats/<int:first_id>/<int:second_id>", methods=["GET", "POST"])
-def chat(first_id, second_id):
+@app.route("/chats/<int:first_id>/<int:second_id>", methods=["GET", "POST"])  # Чат
+@login_required
+def chats(first_id, second_id):
     check_last_page()
     # chats: {
     #   url:
@@ -242,11 +266,25 @@ def chat(first_id, second_id):
     #           ["data", "user", "text"]
     #       ]
     # }
-    print(1)
+    sessions = db_session.create_session()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    if current_user.id != first_id and current_user.id != second_id:
+        if main_lang == "en":
+            mess = "You cann't wathing this chat"
+        else:
+            mess = "Вы не можете следить за этим чатом"
+        return mess
     first_url = str(first_id) + "_" + str(second_id)
     second_url = str(second_id) + "_" + str(first_id)
     url = ""
-    with open("static/json/chaty.json") as file:
+    with open("static/json/chaty.json", "r", encoding="utf-8") as file:
         data = json.load(file)
     if first_url in data["chats"].keys():
         url = first_url
@@ -257,39 +295,71 @@ def chat(first_id, second_id):
     if not url in data["chats"].keys():
         time = datetime.datetime.now()
         data["chats"].update([(url, [[time.year, time.month, time.day, time.hour, time.minute,
-                                      time.second]])])
-        with open("static/json/chaty.json", "w") as file:
+                                      time.second, {first_id: 0, second_id: 0}]])])
+        with open("static/json/chaty.json", "w", encoding='utf-8') as file:
             json.dump(data, file)
         with open("static/json/chaty.json") as file:
             data = json.load(file)
-    form = chatsform.ChatsForm()
-    if request.method == "POST":
-        with open("static/json/chaty.json") as file:
-            data = json.load(file)
-        time = datetime.datetime.now()
-        message = form.message.data.split()
-        new_message = []
-        for i in range(len(message)):
-            if len(message[i]) > 25:
-                for j in range(0, len(message[i]), 25):
-                    new_message += [message[i][j:j + 25]]
-            else:
-                new_message += [message[i]]
-        new_message = " ".join(new_message)
-        data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
-                                 time.second), current_user.id, new_message]]
-        with open("static/json/chaty.json", "w") as file:
-            json.dump(data, file)
-        form.message.data = ""
-    else:
-        print(form.message.data)
-    print(1)
-    chat = data["chats"][url]
+    chat = data["chats"][url][1:]
+    for i in range(len(chat)):
+        chat[i][2] = chat[i][2].encode('l1').decode()
     colors = choice(["primary", "success", "danger", "info"])
-    return render_template("chats.html", colors=colors, chat=chat, form=form, url=url)
+    return render_template("chats.html", colors=colors, chat=chat, url=url, main_color=main_color,
+                           main_lang=main_lang)
 
 
-def check_last_page():
+@app.route("/chats_in_search")  # Чаты во время поиска
+def chats_in_search():
+    sessions = db_session.create_session()
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    chat_list = []
+    for key in data["chats"].keys():
+        if str(current_user.id) in key:
+            id_list = key.split("_")
+            del id_list[id_list.index(str(current_user.id))]
+            user = sessions.query(users.User).get(id_list[0])
+            chat_list += [user]
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    return render_template("chat_in_search.html", colors=colors, main_color=main_color,
+                           chat_list=chat_list, main_lang=main_lang)
+
+
+@app.route("/chat")  # Все чаты
+@login_required
+def chat():
+    sessions = db_session.create_session()
+    with open("static/json/chaty.json") as file:
+        data = json.load(file)
+    chat_list = []
+    for key in data["chats"].keys():
+        if str(current_user.id) in key:
+            id_list = key.split("_")
+            del id_list[id_list.index(str(current_user.id))]
+            user = sessions.query(users.User).get(id_list[0])
+            chat_list += [user]
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    return render_template("chat_list.html", colors=colors, main_color=main_color,
+                           chat_list=chat_list, main_lang=main_lang)
+
+
+def check_last_page():  # Проверка, что вы ушли со страницы поиска, для остановки поиска игроков
     if current_user.is_authenticated and "/searchmates" in current_user.last_page:
         with open("static/json/searching_mates.json") as file:
             data = json.load(file)
@@ -304,7 +374,7 @@ def check_last_page():
         session.commit()
 
 
-def news_theft():
+def news_theft():  # Обновление новостей
     session = db_session.create_session()
     NewsFeed = feedparser.parse("https://news.yandex.ru/games.rss")
     nowosty = NewsFeed["entries"]
@@ -319,6 +389,7 @@ def news_theft():
         if not coincidence:
             new_new = news.News(
                 title=translater.translate(title),
+                rus_title=title,
                 rus_content=content,
                 content=translater.translate(content)
             )
@@ -333,8 +404,7 @@ def news_theft():
     session.commit()
 
 
-@app.route("/searchmates/<string:game>")
-@login_required
+@app.route("/searchmates/<string:game>")  # Страница для выбора типа игры
 def searchmates(game):
     check_last_page()
     colors = choice(["primary", "success", "danger", "info"])
@@ -343,33 +413,21 @@ def searchmates(game):
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
-    return render_template('search.html', colors=colors, game=game, main_color=main_color)
+        main_lang = "en"
+    return render_template('search.html', colors=colors, game=game, main_color=main_color,
+                           main_lang=main_lang)
 
 
-@app.route("/cyberclubs")
-def cyberclubs():
-    check_last_page()
-    sessions = db_session.create_session()
-    try:
-        settings_info = sessions.query(settings_db.Settings_db).filter(
-            settings_db.Settings_db.user_id == current_user.id).first()
-        main_color = settings_info.theme
-    except AttributeError:
-        main_color = "white"
-    colors = choice(["primary", "success", "danger", "info"])
-    return render_template('cyberclubs.html', colors=colors, main_color=main_color)
-
-
-@app.route("/profile/<int:id>")
+@app.route("/profile/<int:id>")  # Профиль
 @login_required
 def user_info(id):
     check_last_page()
     sessions = db_session.create_session()
     user = sessions.query(users.User).get(id)
     if user:
-        print(2)
         user_id_str = str(user.id)
         colors = choice(["primary", "success", "danger", "info"])
         ocenka_reputacii = False
@@ -384,16 +442,13 @@ def user_info(id):
             url = url1
         elif url2 in chats.keys():
             url = url2
-        print(str(current_user.id) not in user.appraisers, 1)
         if (url != "" and str(current_user.id) not in user.appraisers and
                 str(current_user.id) + ";1" not in user.notifications):
-            print(chats[url][0][0])
             time1 = (chats[url][0][0] * 365 + chats[url][0][1] * 30 + chats[url][0][2]) * \
                     3600 * 24 + chats[url][0][3] * 3600 + chats[url][0][4] * 60 + chats[url][0][5]
             time = datetime.datetime.now()
             time2 = (time.year * 365 + time.month * 30 + time.day) * 3600 * 24 + time.hour * \
                     3600 + time.minute * 60 + time.second
-            print(time2 - time1)
             if time2 - time1 > 3600:
                 ocenka_reputacii = True
         if (str(current_user.id) + ";0;" + str(user.id) not in user.notifications and
@@ -403,14 +458,16 @@ def user_info(id):
             settings_info = sessions.query(settings_db.Settings_db).filter(
                 settings_db.Settings_db.user_id == current_user.id).first()
             main_color = settings_info.theme
+            main_lang = settings_info.language
         except AttributeError:
             main_color = "white"
+            main_lang = "en"
         return render_template("profile.html", colors=colors, user=user, main_color=main_color,
                                userid=user_id_str, ocenka_reputacii=ocenka_reputacii,
-                               dobavlenie_v_druzya=dobavlenie_v_druzya)
+                               dobavlenie_v_druzya=dobavlenie_v_druzya, main_lang=main_lang)
 
 
-@app.route("/edit_reputation/<int:id>/<int:znach>/<int:second_id>")
+@app.route("/edit_reputation/<int:id>/<int:znach>/<int:second_id>")  # Редактирование репутации
 @login_required
 def edit_reputation(id, znach, second_id):
     sessions = db_session.create_session()
@@ -433,7 +490,7 @@ def edit_reputation(id, znach, second_id):
         return redirect(f"/clean_notifications/{id}/{second_id}/1/{znach}")
 
 
-@app.route("/add_to_friend/<int:first_id>/<int:second_id>")
+@app.route("/add_to_friend/<int:first_id>/<int:second_id>")  # Добавление в друзья
 @login_required
 def add_to_friend(first_id, second_id):
     sessions = db_session.create_session()
@@ -456,25 +513,51 @@ def add_to_friend(first_id, second_id):
         return redirect(f"/clean_notifications/{current_user.id}/{second_id}/0/{first_id}")
 
 
-@app.route("/edit_profile", methods=["GET", "POST"])
+@app.route("/edit_profile", methods=["GET", "POST"])  # Редактирование профиля
 @login_required
 def edit_profile():
     check_last_page()
+    colors = choice(["primary", "success", "danger", "info"])
     form = edit_profile_form.EditProfileForm()
-    message = "If you want to change your password enter your old password"
+    try:
+        sessions = db_session.create_session()
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    if main_lang == "en":
+        message = "If you want to change your password, enter your old password"
+    else:
+        message = "Если вы хотите изменить свой пароль, введите свой старый пароль"
     if request.method == "POST":
         session = db_session.create_session()
-        print(form.old_password.data, form.new_password.data)
         if form.old_password.data != "" and form.new_password.data != "":
             if not current_user.check_password(form.old_password.data):
-                message = "Invalid old password"
+                if main_lang == "en":
+                    message = "Invalid old password"
+                else:
+                    message = "Неверный старый пароль"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             elif form.new_password.data != form.new_password_again:
-                message = "The new password is incorrectly repeated"
+                if main_lang == "en":
+                    message = "The new password is incorrectly repeated"
+                else:
+                    message = "Новый пароль повторен неправильно"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             elif form.old_password.data == form.new_password.data:
-                message = "The new password matches the old one"
+                if main_lang == "en":
+                    message = "The new password matches the old one"
+                else:
+                    message = "Новый пароль совпадает со старым"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             else:
                 current_user.set_password(form.new_password.data)
-        print(request.files["file"])
         if str(request.files["file"]) != "<FileStorage: '' ('application/octet-stream')>":
             file = request.files["file"]
             name = "static/img/avatar_img/avatar_" + \
@@ -483,6 +566,13 @@ def edit_profile():
             current_user.avatar = "/" + name
         current_user.favorite_games = form.favorite_games.data
         if form.name.data != "":
+            if len(form.name.data) > 16 or len(form.name.data) < 3:
+                if main_lang == "en":
+                    message = "This login too long"
+                else:
+                    message = "Этот логин слишком длинный"
+                return render_template("edit_profile.html", colors=colors, form=form,
+                                       message=message)
             current_user.name = form.name.data
         session.merge(current_user)
         session.commit()
@@ -490,11 +580,10 @@ def edit_profile():
     form.avatar.data = current_user.avatar
     form.favorite_games.data = current_user.favorite_games
     form.name.data = current_user.name
-    colors = choice(["primary", "success", "danger", "info"])
     return render_template("edit_profile.html", colors=colors, form=form, message=message)
 
 
-@app.route("/notifications", methods=["GET", "POST"])
+@app.route("/notifications", methods=["GET", "POST"])  # Уведомления
 @login_required
 def notifications():
     # _[id - от кого;0 - запрос дружбы, 1 - отзыв; id - если запрос, ocenka - если отзыв]
@@ -502,20 +591,29 @@ def notifications():
     notifications = current_user.notifications.split("_")[1:]
     new_notifications = []
     message = ""
+    sessions = db_session.create_session()
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
     if notifications == [""]:
-        message = "You don't have any new requests"
+        if main_lang == "en":
+            message = "You don't have any new requests"
+        else:
+            message = "У вас нет новых запрсов"
     else:
-        print(1)
-        print(notifications)
         for i in notifications[1:]:
             print(i[1:-1])
             items = list(map(int, i[1:-1].split(";")))
             user = session.query(users.User).get(items[0])
             new_notifications += [[user, items[1], items[2]]]
-    print(new_notifications)
     colors = choice(["primary", "success", "danger", "info"])
     return render_template("notifications.html", notifications=new_notifications, colors=colors,
-                           message=message)
+                           message=message, main_color=main_color, main_lang=main_lang)
 
 
 @app.route(
@@ -531,7 +629,7 @@ def clean_notifications(user_id, first_item, second_item, third_item):
     return redirect("/notifications")
 
 
-@app.route("/redefine_role", methods=["GET", "POST"])
+@app.route("/redefine_role", methods=["GET", "POST"])  # Страница переопределения ролей
 def redefine_role():
     check_last_page()
     form = redefine_roles.Redefine_role()
@@ -541,10 +639,12 @@ def redefine_role():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     if form.validate_on_submit():
-        if 'submit' in request.form:
+        if 'submit' in request.form or 'submit_rus' in request.form:
             try:
                 sessions = db_session.create_session()
                 user_info = sessions.query(users.User).filter(
@@ -552,14 +652,16 @@ def redefine_role():
                 return render_template('redefine_role.html', colors=colors, form=form,
                                        user_name=user_info.name,
                                        user_role=user_info.role,
-                                       main_color=main_color)
+                                       main_color=main_color,
+                                       main_lang=main_lang)
             except AttributeError:
                 return render_template('redefine_role.html', colors=colors, form=form,
                                        message="Данного id не существует!",
                                        user_name="",
                                        user_role="",
-                                       main_color=main_color)
-        elif 'save' in request.form:
+                                       main_color=main_color,
+                                       main_lang=main_lang)
+        elif 'save' in request.form or 'save_rus' in request.form:
             sessions = db_session.create_session()
             new_user_role = form.input_user_role.data
             user_info = sessions.query(users.User).filter(
@@ -569,16 +671,17 @@ def redefine_role():
             return render_template('redefine_role.html', colors=colors, form=form,
                                    user_name="",
                                    user_role="",
-                                   main_color=main_color)
+                                   main_color=main_color,
+                                   main_lang=main_lang)
     return render_template('redefine_role.html', colors=colors, form=form,
                            user_name="",
                            user_role="",
-                           main_color=main_color)
+                           main_color=main_color,
+                           main_lang=main_lang)
 
 
-@app.route("/forum", methods=["GET", "POST"])
+@app.route("/forum", methods=["GET", "POST"])  # Главная страница форума
 def forum_func():
-    form = forum.Forum()
     colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
     forum_questions = sessions.query(forum_db.Forum).filter(forum_db.Forum.date).all()
@@ -586,12 +689,15 @@ def forum_func():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
-    return render_template("forum.html", colors=colors, form=form, forum_questions=forum_questions,
-                           main_color=main_color)
+        main_lang = "en"
+    return render_template("forum.html", colors=colors, forum_questions=forum_questions,
+                           main_color=main_color, main_lang=main_lang)
 
 
+# Полная страница вопроса (форум)
 @app.route("/forum/question/<int:num_id>", methods=["GET", "POST"])
 def forum_full_question(num_id):
     colors = choice(["primary", "success", "danger", "info"])
@@ -614,14 +720,17 @@ def forum_full_question(num_id):
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     return render_template("forum_full_question.html", colors=colors, num_id=num_id,
                            title=forum_question.title, question=forum_question.question,
                            answers=answers, user_name=name_users, count=len(answers),
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
+# Страница ответа на вопрос (форум)
 @app.route("/forum/answere_on_question/<int:num_id>", methods=["GET", "POST"])
 def answer_on_question_func(num_id):
     form = answer_on_question.Answer_on_question()
@@ -632,10 +741,12 @@ def answer_on_question_func(num_id):
             settings_info = sessions.query(settings_db.Settings_db).filter(
                 settings_db.Settings_db.user_id == current_user.id).first()
             main_color = settings_info.theme
+            main_lang = settings_info.language
         except AttributeError:
             main_color = "white"
+            main_lang = "en"
         return render_template("answer_on_question.html", colors=colors, num_id=num_id, form=form,
-                               main_color=main_color)
+                               main_color=main_color, main_lang=main_lang)
     elif request.method == 'POST':
         sessions = db_session.create_session()
         answer = form.answer.data
@@ -655,7 +766,7 @@ def answer_on_question_func(num_id):
         return redirect("/forum")
 
 
-@app.route("/forum/ask_question", methods=["GET", "POST"])
+@app.route("/forum/ask_question", methods=["GET", "POST"])  # Страница для задавания вопроса (форум)
 def ask_a_question():
     form = ask_question.Ask_question()
     colors = choice(["primary", "success", "danger", "info"])
@@ -674,13 +785,15 @@ def ask_a_question():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
+        main_lang = "en"
     return render_template("ask_question.html", colors=colors, form=form,
-                           main_color=main_color)
+                           main_color=main_color, main_lang=main_lang)
 
 
-@app.route("/settings", methods=["GET", "POST"])
+@app.route("/settings", methods=["GET", "POST"])  # Настройки
 def site_settings():
     colors = choice(["primary", "success", "danger", "info"])
     form = settings.Settings_form()
@@ -688,13 +801,13 @@ def site_settings():
     user_info = sessions.query(settings_db.Settings_db).filter(
         settings_db.Settings_db.user_id == current_user.id).first()
     if form.validate_on_submit():
-        if 'white_theme' in request.form:
+        if 'white_theme' in request.form or 'white_theme_rus' in request.form:
             user_info.theme = "white"
-        elif 'dusty_cheese_theme' in request.form:
+        elif 'dusty_cheese_theme' in request.form or 'dusty_cheese_theme_rus' in request.form:
             user_info.theme = "beige"
-        elif 'sneezing_fairy_theme' in request.form:
+        elif 'sneezing_fairy_theme' in request.form or 'sneezing_fairy_theme_rus' in request.form:
             user_info.theme = "#e3f3ff"
-        elif 'lilac_cloud_theme' in request.form:
+        elif 'lilac_cloud_theme' in request.form or 'lilac_cloud_theme_rus' in request.form:
             user_info.theme = "#f9e8fa"
         elif 'en_language' in request.form:
             user_info.language = "en"
@@ -705,12 +818,15 @@ def site_settings():
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
-    return render_template("settings.html", colors=colors, form=form, main_color=main_color)
+        main_lang = "en"
+    return render_template("settings.html", colors=colors, form=form, main_color=main_color,
+                           main_lang=main_lang)
 
 
-@app.route('/question_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/question_delete/<int:id>', methods=['GET', 'POST'])  # Удаление вопроса на форуме
 @login_required
 def news_delete(id):
     sessions = db_session.create_session()
@@ -720,20 +836,23 @@ def news_delete(id):
         sessions.commit()
     else:
         abort(404)
-    return redirect('/')
+    return redirect('/forum')
 
 
-@app.route("/api")
+@app.route("/api")  # API
 def api_page():
     colors = choice(["primary", "success", "danger", "info"])
+    sessions = db_session.create_session()
     try:
-        sessions = db_session.create_session()
         settings_info = sessions.query(settings_db.Settings_db).filter(
             settings_db.Settings_db.user_id == current_user.id).first()
         main_color = settings_info.theme
+        main_lang = settings_info.language
     except AttributeError:
         main_color = "white"
-    return render_template("api_page.html", colors=colors, main_color=main_color)
+        main_lang = "en"
+    return render_template("api_page.html", colors=colors, main_color=main_color,
+                           main_lang=main_lang)
 
 
 def main():

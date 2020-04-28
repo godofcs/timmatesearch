@@ -2,8 +2,13 @@
 
 {% block content %}
     <h1 style="text-align: center;">API</h1>
-    <div style="font-size: 32px;">The API of our site is necessary in order to implement all
+    <div style="font-size: 32px;">
+        {% if main_lang == "en" %}The API of our site is necessary in order to implement all
         the questions and answers of our forum to your site!<br>To get a response in JSON format,
         enter a request using this sample in the address bar: <b>/api/forum/ and after the slash,
-            specify the id of the question you need.</b></div>
+            specify the id of the question you need.</br>{% else %}
+    API нашего сайта необходим для того, чтобы перенести все вопросы и ответы нашего
+        форума на ваш сайт! <br>Чтобы получить ответ в формате JSON, введите запрос по этому образцу
+        в адресной строке:
+        <b>/api/forum/ и после слеша укажите id нужного вам вопроса.{% endif %}</br></div>
 {% endblock %}

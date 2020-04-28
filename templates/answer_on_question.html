@@ -10,20 +10,32 @@
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
     <p>
-        {{ form.answer.label(style="font-size: 20px;") }}<br>
-        {{ form.answer(class="form-control", style="width: 98%; padding-bottom: 400px;
-        padding-top: 20px;", type="string") }}<br>
+        {% if main_lang == "en" %}
+            {{ form.answer.label(style="font-size: 20px;") }}
+        {% else %}
+            <p style="font-size: 20px;">О т в е т:</p>
+        {% endif %}
+        {{ form.answer(class="form-control", style="width: 94%; height: 300px;", type="string") }}<br>
         {% for error in form.answer.errors %}
     <p class="alert alert-danger" role="alert">
         {{ error }}
     </p>
     {% endfor %}
     </p>
-    <p>{{ form.submit(type="submit", style="font-family: FF Trixie;",
-        class="btn btn-primary") }}</p>
+    {% if main_lang == "en" %}
+        <p>{{ form.submit(type="submit", style="font-family: FF Trixie;",
+            class="btn btn-primary") }}</p>
+    {% else %}
+        <p>{{ form.submit_rus(type="submit", style="font-family: FF Trixie;",
+            class="btn btn-primary") }}</p>
+    {% endif %}
     {{message}}
 </form>
 {% else %}
-<div>Для ответа на вопрос, вы должны зарегистрироваться!</div>
+{% if main_lang == "en" %}
+    <div>To answer the question, you must register!</div>
+{% else %}
+    <div>Для ответа на вопрос, вы должны зарегистрироваться!</div>
+{% endif %}
 {% endif %}
 {% endblock %}

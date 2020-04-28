@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="http-equiv" content="Content-type: text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta http-equiv="Refresh" content="10" />
+{% endblock %}
+
+{% block content %}
+{% for user in chat_list %}
+<table style="margin-top: 30px; width: 98%;" class="outline">
+    <tr style="background-color: gainsboro;">
+        <td width="75"><a href="/profile/{{ user.id }}"><img src="{{ user.avatar }}" class="round"
+                                                  alt="" height="50" width="50"></a></td>
+        <td><a href="/chats/{{ user.id }}/{{ current_user.id }}">{{ user.name }}</a></td>
+    </tr>
+</table>
+{% endfor %}
+{% endblock %}

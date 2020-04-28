@@ -9,7 +9,11 @@
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
     <p>
-        {{ form.name.label }}<br>
+        {% if main_lang == "en" %}
+            {{ form.name.label }}<br>
+        {% else %}
+            <p>Имя пользователя</p>
+        {% endif %}
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
     <p class="alert alert-danger" role="alert">
@@ -18,7 +22,11 @@
     {% endfor %}
     </p>
     <p>
-        {{ form.old_password.label }}<br>
+        {% if main_lang == "en" %}
+            {{ form.old_password.label }}<br>
+        {% else %}
+            <p>Старый пароль</p>
+        {% endif %}
         {{ form.old_password(class="form-control", type="password") }}<br>
         {% for error in form.old_password.errors %}
     <p class="alert alert-danger" role="alert">
@@ -27,7 +35,11 @@
     {% endfor %}
     </p>
     <p>
-        {{ form.new_password.label }}<br>
+        {% if main_lang == "en" %}
+            {{ form.new_password.label }}<br>
+        {% else %}
+            <p>Новый пароль</p>
+        {% endif %}
         {{ form.new_password(class="form-control", type="password") }}<br>
         {% for error in form.new_password.errors %}
     <p class="alert alert-danger" role="alert">
@@ -36,7 +48,11 @@
     {% endfor %}
     </p>
     <p>
+        {% if main_lang == "en" %}
         {{ form.new_password_again.label }}<br>
+        {% else %}
+            <p>Подтвердите новый пароль</p>
+        {% endif %}
         {{ form.new_password_again(class="form-control", type="password") }}<br>
         {% for error in form.new_password_again.errors %}
     <p class="alert alert-danger" role="alert">
@@ -46,7 +62,11 @@
     </p>
     <p>{{ message }}</p>
     <p>
-        {{ form.favorite_games.label }}<br>
+        {% if main_lang == "en" %}
+            {{ form.favorite_games.label }}<br>
+        {% else %}
+            <p>Любимые игры</p>
+        {% endif %}
         {{ form.favorite_games(class="form-control") }}<br>
         {% for error in form.favorite_games.errors %}
     <p class="alert alert-danger" role="alert">
@@ -57,6 +77,10 @@
     <div class="form-group">
         <input type="file" class="form-control-file" id="photo" name="file">
     </div>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if main_lang == "en" %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% else %}
+        <p>{{ form.submit_rus(type="submit", class="btn btn-primary") }}</p>
+    {% endif %}
 </form>
 {% endblock %}

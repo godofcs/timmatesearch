@@ -11,3 +11,4 @@ class EditProfileForm(FlaskForm):
     avatar = FileField("Avatar")
     favorite_games = StringField('Favorite games')
     submit = SubmitField('edit')
+    submit_rus = SubmitField('изменить')

@@ -5,27 +5,69 @@
 {% endblock %}
 
 {% block content %}
-{% if game == "csgo" %}
-<h1 style="text-align: center;">CS:GO</h1>
-<div class="container" style="display: flex;">
-    <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/CS:GO/match_making">
-        <img src="../static/img/csgo_workmates_2x2.jpg">
-    </a>
-    <a style="margin-top: 40px;" href="/searchmates/CS:GO/workmates">
-        <img src="../static/img/csgo_matchmaking_5x5.jpg">
-    </a>
-</div>
-{% elif game == "dota2" %}
-<h1 style="text-align: center;">DOTA 2</h1>
-{% elif game == "trove" %}
-<h1 style="text-align: center;">TROVE</h1>
-{% elif game == "gta_online" %}
-<h1 style="text-align: center;">GTA ONLINE</h1>
-{% elif game == "pubg" %}
-<h1 style="text-align: center;">PUBG</h1>
-{% elif game == "paladins" %}
-<h1 style="text-align: center;">PALADINS</h1>
-{% elif game == "fortnite" %}
-<h1 style="text-align: center;">FORTNITE</h1>
-{% endif %}
+    {% if game == "csgo" %}
+    <h1 style="text-align: center;">CS:GO</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/CS:GO/workmates">
+            <img src="../static/img/csgo_workmates_2x2.jpg">
+        </a>
+        <a style="margin-top: 40px;" href="/searchmates/CS:GO/match_making">
+            <img src="../static/img/csgo_matchmaking_5x5.jpg">
+        </a>
+    </div>
+    {% elif game == "dota2" %}
+    <h1 style="text-align: center;">DOTA 2</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/dota2/turbo">
+            <img src="../static/img/dota2Turbo.jpg">
+        </a>
+        <a style="margin-top: 40px;" href="/searchmates/dota2/rating_game">
+            <img src="../static/img/dota2_ratinggame.jpg">
+        </a>
+    </div>
+    {% elif game == "minecraft" %}
+    <h1 style="text-align: center;">MINECRAFT</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/minecraft/survival">
+            <img src="../static/img/minecraft_survival.jpg">
+        </a>
+        <a style="margin-top: 40px;" href="/searchmates/minecraft/creative">
+            <img src="../static/img/minecraft_creative.jpg">
+        </a>
+    </div>
+    {% elif game == "gta_online" %}
+    <h1 style="text-align: center;">GTA ONLINE</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/GTA_Online/grand_theft_auto_online">
+            <img src="../static/img/gta_online.jpg">
+        </a>
+    </div>
+    {% elif game == "pubg" %}
+    <h1 style="text-align: center;">PUBG</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/PUBG/duo">
+            <img src="../static/img/pubg_duo.jpg">
+        </a>
+        <a style="margin-top: 40px;" href="/searchmates/PUBG/squad">
+            <img src="../static/img/pubg_squad.jpg">
+        </a>
+    </div>
+    {% elif game == "paladins" %}
+    <h1 style="text-align: center;">PALADINS</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/paladins/siege">
+            <img src="../static/img/paladins_siege.jpg">
+        </a>
+        <a style="margin-top: 40px;" href="/searchmates/paladins/onslaught">
+            <img src="../static/img/paladins_onslaught.jpg">
+        </a>
+    </div>
+    {% elif game == "fortnite" %}
+    <h1 style="text-align: center;">FORTNITE</h1>
+    <div class="container" style="display: flex;">
+        <a style="margin-top: 40px; margin-right: 20px;" href="/searchmates/Fortnite/battle_royale">
+            <img src="../static/img/fortnite_battle_royale.jpg">
+        </a>
+    </div>
+    {% endif %}
 {% endblock %}

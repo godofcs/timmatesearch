@@ -1,26 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 style="text-align: center; margin-bottom: 40px;">Settings</h1>
+<h1 style="text-align: center; margin-bottom: 40px;">{% if main_lang == "en" %}Settings
+{% else %}Настройки{% endif %}</h1>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     {{ form.csrf_token }}
-    <p style="font-size: 20px;">Select a theme for your website:</p>
-    <div style="display: flex;">
-        <p style="margin-right: 20px;">{{ form.white_theme(type="submit",
-            class="btn btn-light") }}</p>
-        <p style="margin-right: 20px;">{{ form.dusty_cheese_theme(type="submit",
-            class="btn btn-info") }}</p>
-        <p style="margin-right: 20px;">{{ form.sneezing_fairy_theme(type="submit",
-            class="btn btn-danger") }}</p>
-        <p style="margin-right: 20px;">{{ form.lilac_cloud_theme(type="submit",
-            class="btn btn-warning") }}</p>
-    </div>
-    <p style="font-size: 20px; margin-top: 30px;">Select the site language:</p>
-    <div style="display: flex;">
-        <p style="margin-right: 20px;">{{ form.en_language(type="submit",
-            class="btn btn-primary") }}</p>
-        <p>{{ form.ru_language(type="submit", class="btn btn-primary") }}</p>
-    </div>
+    {% if main_lang == "en" %}
+        <p style="font-size: 20px;">Select a theme for your website:</p>
+        <div style="display: flex;">
+                <p style="margin-right: 20px;">{{ form.white_theme(type="submit",
+                    class="btn btn-light") }}</p>
+                <p style="margin-right: 20px;">{{ form.dusty_cheese_theme(type="submit",
+                    class="btn btn-info") }}</p>
+                <p style="margin-right: 20px;">{{ form.sneezing_fairy_theme(type="submit",
+                    class="btn btn-danger") }}</p>
+                <p style="margin-right: 20px;">{{ form.lilac_cloud_theme(type="submit",
+                    class="btn btn-warning") }}</p>
+        </div>
+        <p style="font-size: 20px; margin-top: 30px;">Select the site language:</p>
+        <div style="display: flex;">
+            <p style="margin-right: 20px;">{{ form.en_language(type="submit",
+                class="btn btn-primary") }}</p>
+            <p>{{ form.ru_language(type="submit", class="btn btn-primary") }}</p>
+        </div>
+    {% else %}
+        <p style="font-size: 20px;">Выберите тему для оформления веб-сайта:</p>
+        <div style="display: flex;">
+                <p style="margin-right: 20px;">{{ form.white_theme_rus(type="submit",
+                    class="btn btn-light") }}</p>
+                <p style="margin-right: 20px;">{{ form.dusty_cheese_theme_rus(type="submit",
+                    class="btn btn-info") }}</p>
+                <p style="margin-right: 20px;">{{ form.sneezing_fairy_theme_rus(type="submit",
+                    class="btn btn-danger") }}</p>
+                <p style="margin-right: 20px;">{{ form.lilac_cloud_theme_rus(type="submit",
+                    class="btn btn-warning") }}</p>
+        </div>
+        <p style="font-size: 20px; margin-top: 30px;">Выберите язык сайта:</p>
+        <div style="display: flex;">
+            <p style="margin-right: 20px;">{{ form.en_language(type="submit",
+                class="btn btn-primary") }}</p>
+            <p>{{ form.ru_language(type="submit", class="btn btn-primary") }}</p>
+        </div>
+    {% endif %}
 </form>
 {% endblock %}

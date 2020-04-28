@@ -7,4 +7,6 @@ class Redefine_role(FlaskForm):
     user_id = StringField('user id', validators=[DataRequired()])
     input_user_role = StringField()
     submit = SubmitField('search')
+    submit_rus = SubmitField('поиск')
     save = SubmitField('save')
+    save_rus = SubmitField('сохранить')
