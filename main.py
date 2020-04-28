@@ -147,6 +147,7 @@ def login():
 def reqister():
     check_last_page()
     form = registration.RegisterForm()
+    colors = choice(["primary", "success", "danger", "info"])
     sessions = db_session.create_session()
     try:
         settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -158,17 +159,17 @@ def reqister():
         main_lang = "en"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
+            return render_template('register.html', title='Регистрация', colors=colors,
                                    form=form, main_color=main_color,
                                    message="Passwords don't match", main_lang=main_lang)
         if sessions.query(users.User).filter(users.User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
-                                   form=form, main_color=main_color,
+                                   form=form, main_color=main_color, colors=colors,
                                    message="This user already exists", main_lang=main_lang)
         if len(form.name.data) > 16 or len(form.name.data) < 3:
             return render_template('register.html', title='Регистрация',
-                                   form=form, main_color=main_color,
-                                   message="This login too long", main_lang=main_lang)
+                                   form=form, main_color=main_color, colors=colors,
+                                   message="This login too long or too short", main_lang=main_lang)
         user = users.User(name=form.name.data,
                           email=form.email.data,
                           password=form.password.data,
@@ -182,7 +183,6 @@ def reqister():
         sessions.add(settings)
         sessions.commit()
         return redirect('/login')
-    colors = choice(["primary", "success", "danger", "info"])
     return render_template('register.html', colors=colors, title='Registration', form=form,
                            main_color=main_color, main_lang=main_lang)
 
