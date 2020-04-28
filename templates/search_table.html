@@ -22,13 +22,13 @@
     <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
         <a style="margin-right: 40px;" class="btn btn-primary"
            href="/searchmates/{{ name_game }}/{{ type_game }}">Доска</a>
-        <a class="btn btn-success" href="/chats_in_search">Чаты</a>
+        <a class="btn btn-success" href="/chats_in_search/{{ name_game }}/{{ type_game }}">Чаты</a>
     </div>
 {% else %}
     <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
         <a style="margin-right: 40px;" class="btn btn-primary"
            href="/searchmates/{{ name_game }}/{{ type_game }}">Desk</a>
-        <a class="btn btn-success" href="/chats_in_search">Chats</a>
+        <a class="btn btn-success" href="/chats_in_search/{{ name_game }}/{{ type_game }}">Chats</a>
     </div>
 {% endif %}
 <script type="text/javascript">

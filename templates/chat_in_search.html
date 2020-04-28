@@ -3,15 +3,28 @@
 {% block head %}
 <meta name="http-equiv" content="Content-type: text/html; charset=UTF-8">
 <meta charset="UTF-8">
-<meta http-equiv="Refresh" content="10" />
+<meta http-equiv="Refresh" content="10"/>
 {% endblock %}
 
 {% block content %}
+{% if main_lang == "ru" %}
+    <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
+        <a style="margin-right: 40px;" class="btn btn-primary"
+           href="/searchmates/{{ name_game }}/{{ type_game }}">Доска</a>
+        <a class="btn btn-success" href="/chats_in_search/{{ name_game }}/{{ type_game }}">Чаты</a>
+    </div>
+{% else %}
+    <div style="margin-top: 20px; margin-bottom: 40px; margin-right: auto; margin-left: auto; width: 50%;">
+        <a style="margin-right: 40px;" class="btn btn-primary"
+           href="/searchmates/{{ name_game }}/{{ type_game }}">Desk</a>
+        <a class="btn btn-success" href="/chats_in_search/{{ name_game }}/{{ type_game }}">Chats</a>
+    </div>
+{% endif %}
 {% for user in chat_list %}
 <table style="margin-top: 30px; width: 98%;" class="outline">
     <tr style="background-color: gainsboro;">
         <td width="75"><a href="/profile/{{ user.id }}"><img src="{{ user.avatar }}" class="round"
-                                                  alt="" height="50" width="50"></a></td>
+                                                             alt="" height="50" width="50"></a></td>
         <td><a href="/chats/{{ user.id }}/{{ current_user.id }}">{{ user.name }}</a></td>
     </tr>
 </table>

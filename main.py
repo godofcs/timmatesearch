@@ -308,8 +308,9 @@ def chats(first_id, second_id):
                            main_lang=main_lang)
 
 
-@app.route("/chats_in_search")  # Чаты во время поиска
-def chats_in_search():
+# Чаты во время поиска
+@app.route("/chats_in_search/<string:game>/<string:type>", methods=["GET", "POST"])
+def chats_in_search(game, type):
     sessions = db_session.create_session()
     with open("static/json/chaty.json") as file:
         data = json.load(file)
@@ -330,7 +331,7 @@ def chats_in_search():
         main_color = "white"
         main_lang = "en"
     return render_template("chat_in_search.html", colors=colors, main_color=main_color,
-                           chat_list=chat_list, main_lang=main_lang)
+                           chat_list=chat_list, main_lang=main_lang, name_game=game, type_game=type)
 
 
 @app.route("/chat")  # Все чаты
