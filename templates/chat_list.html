@@ -7,12 +7,12 @@
 
 {% block content %}
 {% for user in chat_list %}
-<table style="margin-top: 30px; width: 98%;" class="outline">
-    <tr style="background-color: gainsboro;">
-        <td width="75"><a href="/profile/{{ user.id }}"><img src="{{ user.avatar }}" class="round"
-                                                  alt="" height="50" width="50"></a></td>
-        <td><a href="/chats/{{ user.id }}/{{ current_user.id }}">{{ user.name }}</a></td>
-    </tr>
-</table>
+<div style="margin-top: 30px; width: 98%; border: 1px solid black; border-radius: 20px;
+padding-top: 20px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px;">
+    <a href="/profile/{{ user[0].id }}" style="text-decoration: none;"><img src="{{ user[0].avatar }}" class="round"
+                                                  alt="" height="50" width="50"></a>
+    <a href="/chats/{{ user[0].id }}/{{ current_user.id }}" style="margin-left: 4%; text-decoration: none;">{{ user[0].name }}</a>
+    <a href="/chats/{{ user[0].id }}/{{ current_user.id }}" style="margin-left: 10%; text-decoration: none; color: black;">{{ user[1] }}: {{ user[2] }}</a>
+</div>
 {% endfor %}
 {% endblock %}

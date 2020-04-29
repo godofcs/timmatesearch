@@ -37,6 +37,10 @@
         <a class="btn btn-warning" href="/add_to_friend/{{ user.id }}/{{ current_user.id }}" style="font-size: 16pt;">
             {% if main_lang == "en" %}Add to friend{% else %}Добавить в друзья{% endif %}</a>
         {% endif %}
+        {% if udalenie_iz_druzey %}
+        <a href="/unfriend/{{ current_user.id }}/{{ user.id }}/profile_{{ user.id }}"><img src="/static/img/delete_button.png" class="round"
+                                          alt="" height="50" width="50" style="margin-right: 20px; margin-left: 20px;">Unfriend</a>
+        {% endif %}
         {% endif %}
         <br>
         <br>

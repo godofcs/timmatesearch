@@ -2,14 +2,17 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/style.css">
+
 {% endblock %}
 
 {% block content %}
 {% for user in user_friends_list %}
-<div style="margin-top: 30px; width: 98%; background-color: gainsboro;" class="rounded" width="100">
-    <a href="/profile/{{ user.id }}"><img src="{{ user.avatar }}" class="round"
-                                          alt="" height="50" width="50">
-        {{ user.name }}</a>
+<div style="margin-top: 30px; width: 98%; border: 1px solid black; border-radius: 20px;
+padding-top: 20px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px;">
+    <a href="/profile/{{ user.id }}" style="text-decoration: none; font-size: 20pt;"><img src="{{ user.avatar }}" class="round"
+                                          alt="" height="50" width="50" style="margin-right: 20px;"> {{ user.name }}</a>
+    <a href="/unfriend/{{ current_user.id }}/{{ user.id }}/friends"><img src="/static/img/delete_button.png" class="round"
+                                          alt="" height="50" width="50" style="margin-right: 20px; margin-left: 20px;"></a>
 </div>
 {% endfor %}
 {% endblock %}

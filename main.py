@@ -249,6 +249,7 @@ def Message(message):
         data = json.load(file)
     time = datetime.datetime.now()
     message, url = map(str, message.split("4a96a813f286fb923b0b4ead19e0052c3ddc1c36"))
+    message = message.encode('l1').decode()
     data["chats"][url] += [[(time.year, time.month, time.day, time.hour, time.minute,
                              time.second), current_user.name, message]]
     with open("static/json/chaty.json", "w") as file:
@@ -301,8 +302,6 @@ def chats(first_id, second_id):
         with open("static/json/chaty.json") as file:
             data = json.load(file)
     chat = data["chats"][url][1:]
-    for i in range(len(chat)):
-        chat[i][2] = chat[i][2].encode('l1').decode()
     colors = choice(["primary", "success", "danger", "info"])
     return render_template("chats.html", colors=colors, chat=chat, url=url, main_color=main_color,
                            main_lang=main_lang)
@@ -346,7 +345,7 @@ def chat():
             id_list = key.split("_")
             del id_list[id_list.index(str(current_user.id))]
             user = sessions.query(users.User).get(id_list[0])
-            chat_list += [user]
+            chat_list += [[user, data["chats"][key][-1][-2], data["chats"][key][-1][-1]]]
     colors = choice(["primary", "success", "danger", "info"])
     try:
         settings_info = sessions.query(settings_db.Settings_db).filter(
@@ -433,6 +432,7 @@ def user_info(id):
         colors = choice(["primary", "success", "danger", "info"])
         ocenka_reputacii = False
         dobavlenie_v_druzya = False
+        udalenie_iz_druzey = False
         with open("static/json/chaty.json") as file:
             data = json.load(file)
         chats = data["chats"]
@@ -455,6 +455,8 @@ def user_info(id):
         if (str(current_user.id) + ";0;" + str(user.id) not in user.notifications and
                 str(current_user.id) not in user.friends):
             dobavlenie_v_druzya = True
+        if not dobavlenie_v_druzya and str(current_user.id) in user.friends.split("_"):
+            udalenie_iz_druzey = True
         try:
             settings_info = sessions.query(settings_db.Settings_db).filter(
                 settings_db.Settings_db.user_id == current_user.id).first()
@@ -465,7 +467,8 @@ def user_info(id):
             main_lang = "en"
         return render_template("profile.html", colors=colors, user=user, main_color=main_color,
                                userid=user_id_str, ocenka_reputacii=ocenka_reputacii,
-                               dobavlenie_v_druzya=dobavlenie_v_druzya, main_lang=main_lang)
+                               dobavlenie_v_druzya=dobavlenie_v_druzya, main_lang=main_lang,
+                               udalenie_iz_druzey=udalenie_iz_druzey)
 
 
 @app.route("/edit_reputation/<int:id>/<int:znach>/<int:second_id>")  # Редактирование репутации
@@ -534,6 +537,27 @@ def add_to_friend(first_id, second_id):
             sessions.merge(current_user)
             sessions.commit()
         return redirect(f"/clean_notifications/{current_user.id}/{second_id}/0/{first_id}")
+
+
+@app.route("/unfriend/<int:first_id>/<int:second_id>/<string:last_page>")
+@login_required
+def unfiend(first_id, second_id, last_page):
+    sessions = db_session.create_session()
+    user_1 = sessions.query(users.User).get(first_id)
+    user_2 = sessions.query(users.User).get(second_id)
+    friends_1 = user_1.friends.split("_")[1:]
+    friends_2 = user_2.friends.split("_")[1:]
+    del friends_1[friends_1.index(str(second_id))]
+    del friends_2[friends_2.index(str(first_id))]
+    user_1.friends = "_" + "_".join(friends_1)
+    user_2.friends = "_" + "_".join(friends_2)
+    sessions.merge(user_1)
+    sessions.merge(user_2)
+    sessions.commit()
+    if "profile" in last_page:
+        return redirect("/" + last_page.split("_")[0] + "/" + last_page.split("_")[1])
+    else:
+        return redirect("/" + last_page)
 
 
 @app.route("/edit_profile", methods=["GET", "POST"])  # Редактирование профиля
