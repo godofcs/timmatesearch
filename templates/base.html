@@ -65,6 +65,10 @@
                 <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
                 bg-light" href="/chat">Chat</a>
                 {% endif %}
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/friends">Friends</a>
+                {% endif %}
                 {% if current_user.role == "admin" %}
                     <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
                 bg-light">Redefine roles</a>

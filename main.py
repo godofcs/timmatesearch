@@ -140,7 +140,7 @@ def login():
         return render_template('login.html', message='Invalid username or password', colors=colors,
                                form=form, main_color=main_color, main_lang=main_lang)
     return render_template('login.html', title='Авторизация', colors=colors, form=form,
-                           main_color=main_color, main_lang=main_lang)
+                           main_color=main_color, main_lang=main_lang, message="")
 
 
 @app.route('/register', methods=['GET', 'POST'])  # Страница регистрации
@@ -184,7 +184,7 @@ def reqister():
         sessions.commit()
         return redirect('/login')
     return render_template('register.html', colors=colors, title='Registration', form=form,
-                           main_color=main_color, main_lang=main_lang)
+                           main_color=main_color, main_lang=main_lang, message="")
 
 
 @app.route("/searchmates/<string:game>/<string:types>")  # Страница поиска тиммейтов
@@ -489,6 +489,28 @@ def edit_reputation(id, znach, second_id):
         sessions.merge(user)
         sessions.commit()
         return redirect(f"/clean_notifications/{id}/{second_id}/1/{znach}")
+
+
+@app.route("/friends")
+@login_required
+def friends():
+    sessions = db_session.create_session()
+    user_friends = current_user.friends.split("_")[2:]
+    user_friends_list = []
+    colors = choice(["primary", "success", "danger", "info"])
+    for id in user_friends:
+        user = sessions.query(users.User).get(id)
+        user_friends_list += [user]
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    return render_template("friends.html", colors=colors, main_color=main_color,
+                           main_lang=main_lang, user_friends_list=user_friends_list)
 
 
 @app.route("/add_to_friend/<int:first_id>/<int:second_id>")  # Добавление в друзья
