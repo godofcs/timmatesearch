@@ -671,6 +671,12 @@ def clean_notifications(user_id, first_item, second_item, third_item):
     user = sessions.query(users.User).get(user_id)
     notification = f"_[{first_item};{second_item};{third_item}]"
     user.notifications = "".join(user.notifications.split(notification))
+    if second_item == 0:
+        notification = f"_[{third_item};{second_item};{first_item}]"
+        print(notification)
+        user_2 = sessions.query(users.User).get(first_item)
+        user_2.notifications = "".join(user.notifications.split(notification))
+        sessions.merge(user_2)
     sessions.merge(user)
     sessions.commit()
     return redirect("/notifications")
