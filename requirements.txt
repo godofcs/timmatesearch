@@ -1,0 +1,10 @@
+flask
+flask_login
+flask_restful
+flask_socketio
+feedparser
+sqlalchemy
+wtforms
+flask_wtf
+requests
+sqlalchemy_serializer

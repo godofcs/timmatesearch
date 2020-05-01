@@ -72,6 +72,8 @@
                 {% if current_user.role == "admin" %}
                     <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
                 bg-light">Redefine roles</a>
+                    <a style="font-size: 20px; color: black;" href="/all_users" class="btn btn-{{colors}}
+                bg-light">All users</a>
                 {% endif %}
                 <a style="font-size: 20px; color: black;" href="/api"
                    class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>
@@ -86,9 +88,15 @@
                 <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
                 bg-light" href="/chat">Чат</a>
                 {% endif %}
+                {% if current_user.is_authenticated %}
+                <a style="font-size: 20px; color: black;" class="btn btn-{{colors}} bg-{{colors}}
+                bg-light" href="/friends">Друзья</a>
+                {% endif %}
                 {% if current_user.role == "admin" %}
                     <a style="font-size: 20px; color: black;" href="/redefine_role" class="btn btn-{{colors}}
                 bg-light">Переопределение ролей</a>
+                    <a style="font-size: 20px; color: black;" href="/all_users" class="btn btn-{{colors}}
+                bg-light">Все пользователи сайта</a>
                 {% endif %}
                 <a style="font-size: 20px; color: black;" href="/api"
                    class="btn btn-{{colors}} bg-{{colors}} bg-light">API</a>

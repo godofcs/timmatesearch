@@ -18,12 +18,14 @@
                 </p>
             {% endfor %}
         </p>
+        <div style="display: flex;">
         {% if main_lang == "en" %}
             <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
         {% else %}
             <p>{{ form.submit_rus(type="submit", class="btn btn-primary") }}</p>
         {% endif %}
         {{message}}
+        </div>
         {% if user_name != "" and user_role != "" %}
             <p style="margin-left: 20px; margin-top: 40px; font-size: 30px; display: flex;">
                 {{ user_name }}

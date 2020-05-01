@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for item in info_users %}
+    <div style="font-size: 30px; margin-top: 20px;">id: {{item.id}}</div>
+    <div style="font-size: 30px;">{% if main_lang ==  "en" %}name:{% else %}имя:{% endif %} {{item.name}}</div>
+    <div style="font-size: 30px;">{% if main_lang ==  "en" %}role:{% else %}роль:{% endif %} {{item.role}}</div><br>
+{% endfor %}
+{% endblock %}

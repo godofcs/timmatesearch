@@ -682,6 +682,23 @@ def clean_notifications(user_id, first_item, second_item, third_item):
     return redirect("/notifications")
 
 
+@app.route("/all_users")
+def all_users():
+    sessions = db_session.create_session()
+    colors = choice(["primary", "success", "danger", "info"])
+    try:
+        settings_info = sessions.query(settings_db.Settings_db).filter(
+            settings_db.Settings_db.user_id == current_user.id).first()
+        main_color = settings_info.theme
+        main_lang = settings_info.language
+    except AttributeError:
+        main_color = "white"
+        main_lang = "en"
+    info_users = sessions.query(users.User).filter(users.User.id).all()
+    return render_template("all_users.html", main_color=main_color,
+                           colors=colors, main_lang=main_lang, info_users=info_users)
+
+
 @app.route("/redefine_role", methods=["GET", "POST"])  # Страница переопределения ролей
 def redefine_role():
     check_last_page()
@@ -726,6 +743,10 @@ def redefine_role():
                                    user_role="",
                                    main_color=main_color,
                                    main_lang=main_lang)
+        elif "to_display_all_users" in request.form or "to_display_all_users_rus" in request.form:
+            return render_template('redefine_role.html',
+                                   main_lang=main_lang,
+                                   main_color=main_color)
     return render_template('redefine_role.html', colors=colors, form=form,
                            user_name="",
                            user_role="",
